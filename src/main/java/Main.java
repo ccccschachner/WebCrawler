@@ -21,7 +21,7 @@ public class Main {
     }
 
     private static void storeUrl() {
-        String urlRegex = "^(https?://)?([a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}(\\/[a-zA-Z0-9-._?&=]*)?$";;
+        String urlRegex = "^(https?://)?([a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}(\\/[a-zA-Z0-9-._?&=]*)?$";
 
         System.out.println("Please enter the URL you want to crawl (e.g. https://example.com):");
         if (scanner.hasNextLine()) {
@@ -87,9 +87,9 @@ public class Main {
 
     private static void printUserInput(){
         String result = url + " " + depth + " ";
-        for (int i = 0; i < domains.length; i++) {
-            if(domains[i] != null){
-            result += domains[i] + " ";
+        for (String domain : domains) {
+            if (domain != null) {
+                result += domain + " ";
             }
         }
         result += targetLanguage;
