@@ -1,9 +1,11 @@
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
     private static String url;
     private static int depth;
-    private static String[] domains = new String[10];
+    private static List<String> domains = new ArrayList<>();
     private static String targetLanguage;
     private final static Scanner scanner = new Scanner(System.in);
 
@@ -13,14 +15,14 @@ public class Main {
         printUserInput();
     }
 
-    private static void storeUserInputs() {
+    public static void storeUserInputs() {
         storeUrl();
         storeDepth();
         storeDomains();
         storeTargetLanguage();
     }
 
-    private static void storeUrl() {
+    public static void storeUrl() {
         String urlRegex = "^(https?://)?([a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}(\\/[a-zA-Z0-9-._?&=]*)?$";
 
         System.out.println("Please enter the URL you want to crawl (e.g. https://example.com):");
@@ -33,37 +35,39 @@ public class Main {
         }
     }
 
-    private static void storeDepth() {
+    public static void storeDepth() {
+        String depthRegex = "[1-5]";
         System.out.println("Please enter the depth of websites to crawl (1-5):");
-        if (scanner.hasNextInt()) {
-            depth = Integer.parseInt(scanner.nextLine());
-            if (depth > 5 || depth < 1) {
+        if (scanner.hasNextLine()) {
+            String depthInput = scanner.nextLine();
+            if(depthInput.matches(depthRegex)){
+                depth = Integer.parseInt(depthInput);
+            }
+            else{
                 printInvalidInput();
                 storeDepth();
             }
         } else {
             printInvalidInput();
-            scanner.next();
             storeDepth();
         }
     }
 
-    private static void storeDomains() {
+    public static void storeDomains() {
         String domainRegex = "^(?!.*\\s)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$";
         System.out.println("Please enter domains to be crawled, seperated by a space:");
         if (scanner.hasNextLine()) {
-            domains = scanner.nextLine().split(" ");
-            for(int i = 0; i<domains.length; i++){
-                if(!domains[i].matches(domainRegex)){
+            domains.addAll(List.of(scanner.nextLine().split(" ")));
+            for(int i = 0; i < domains.size(); i++){
+                if(!domains.get(i).matches(domainRegex)){
                     printInvalidInput();
-                    domains = new String[10];
                     storeDomains();
                 }
             }
         }
     }
 
-    private static void storeTargetLanguage() {
+    public static void storeTargetLanguage() {
         String languageRegex = "^([a-z]|[A-Z]){2}$";
 
         System.out.println("Please enter the target language in ISO-2 format:");
@@ -73,7 +77,7 @@ public class Main {
                 printInvalidInput();
                 storeTargetLanguage();
             }
-            scanner.close();
+
         } else {
             storeTargetLanguage();
         }
@@ -81,11 +85,12 @@ public class Main {
     }
 
 
-    private static void printInvalidInput() {
+    public static void printInvalidInput() {
         System.out.println("Invalid Input!");
     }
 
-    private static void printUserInput(){
+    public static void printUserInput(){
+        scanner.close();
         String result = url + " " + depth + " ";
         for (String domain : domains) {
             if (domain != null) {
@@ -93,7 +98,23 @@ public class Main {
             }
         }
         result += targetLanguage;
-        System.out.println("\nThe markdown file based on your inputs:\n" + result + "\nis stored in /path/to/file.\n");
+        System.out.println("\nThe markdown file based on your inputs\n" + result + "\nis stored in /path/to/file.\n");
+    }
+
+    public static String getUrl(){
+        return url;
+    }
+
+    public static String getTargetLanguage(){
+        return targetLanguage;
+    }
+
+    public static int getDepth(){
+        return depth;
+    }
+
+    public static List<String> getDomains(){
+        return domains;
     }
 
 }
