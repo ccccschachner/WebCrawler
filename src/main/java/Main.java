@@ -40,10 +40,9 @@ public class Main {
         System.out.println("Please enter the depth of websites to crawl (1-5):");
         if (scanner.hasNextLine()) {
             String depthInput = scanner.nextLine();
-            if(depthInput.matches(depthRegex)){
+            if (depthInput.matches(depthRegex)) {
                 depth = Integer.parseInt(depthInput);
-            }
-            else{
+            } else {
                 printInvalidInput();
                 storeDepth();
             }
@@ -58,8 +57,8 @@ public class Main {
         System.out.println("Please enter domains to be crawled, seperated by a space:");
         if (scanner.hasNextLine()) {
             domains.addAll(List.of(scanner.nextLine().split(" ")));
-            for(int i = 0; i < domains.size(); i++){
-                if(!domains.get(i).matches(domainRegex)){
+            for (String domain : domains) {
+                if (!domain.matches(domainRegex)) {
                     printInvalidInput();
                     storeDomains();
                 }
@@ -89,7 +88,7 @@ public class Main {
         System.out.println("Invalid Input!");
     }
 
-    public static void printUserInput(){
+    public static void printUserInput() {
         scanner.close();
         String result = url + " " + depth + " ";
         for (String domain : domains) {
@@ -101,19 +100,19 @@ public class Main {
         System.out.println("\nThe markdown file based on your inputs\n" + result + "\nis stored in /path/to/file.\n");
     }
 
-    public static String getUrl(){
+    public static String getUrl() {
         return url;
     }
 
-    public static String getTargetLanguage(){
+    public static String getTargetLanguage() {
         return targetLanguage;
     }
 
-    public static int getDepth(){
+    public static int getDepth() {
         return depth;
     }
 
-    public static List<String> getDomains(){
+    public static List<String> getDomains() {
         return domains;
     }
 
