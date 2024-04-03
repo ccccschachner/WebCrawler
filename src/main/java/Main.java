@@ -7,7 +7,7 @@ public class Main {
     private static int depth;
     private static List<String> domains = new ArrayList<>();
     private static String targetLanguage;
-    private final static Scanner scanner = new Scanner(System.in);
+    public static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
         System.out.println("\nWelcome to WebCrawler!");
