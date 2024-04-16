@@ -17,6 +17,7 @@ public class Main {
         System.out.println("\nWelcome to WebCrawler!");
         storeUserInputs();
         printUserInput();
+
     }
     public static void initializeScanner() {
         scanner = new Scanner(System.in);
