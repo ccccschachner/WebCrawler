@@ -1,5 +1,4 @@
 import org.junit.jupiter.api.Test;
-import org.mockito.configuration.IMockitoConfiguration;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -10,7 +9,7 @@ import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
+
 
 public class MainTest {
 
@@ -28,7 +27,7 @@ public class MainTest {
     private final String domainsSysOut = "Please enter domains to be crawled, seperated by a space:";
     private final String targetLanguageSysOut = "Please enter the target language in ISO-2 format:";
 
-
+    //TODO: find better testcases for invalid input?
 
 
     @Test
@@ -100,7 +99,7 @@ public class MainTest {
         assertEquals(domainsValid, Main.getDomains());
     }
 
-   @Test
+    @Test
     public void testStoreDomainsInvalid() {
         domainsInvalid.add("§!432109");
         domainsInvalid.add(",,,");
@@ -153,5 +152,4 @@ public class MainTest {
             System.err.println(e.getMessage());
         }
     }
-
 }

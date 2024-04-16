@@ -39,6 +39,7 @@ public class Main {
         if (scanner.hasNextLine()) {
             url = scanner.nextLine();
             if (!url.matches(urlRegex)) {
+                url = "";
                 printInvalidInput();
                 storeUrl();
             }
@@ -54,6 +55,7 @@ public class Main {
             if (depthInput.matches(depthRegex)) {
                 depth = Integer.parseInt(depthInput);
             } else {
+                depth = 0;
                 printInvalidInput();
                 storeDepth();
             }
@@ -68,6 +70,7 @@ public class Main {
             domains.addAll(List.of(scanner.nextLine().split(" ")));
             for (String domain : domains) {
                 if (!domain.matches(domainRegex)) {
+                    domains = new ArrayList<>();;
                     printInvalidInput();
                     storeDomains();
                 }
@@ -82,6 +85,7 @@ public class Main {
         if (scanner.hasNextLine()) {
             targetLanguage = scanner.next();
             if (!targetLanguage.matches(languageRegex)) {
+                targetLanguage = "";
                 printInvalidInput();
                 storeTargetLanguage();
             }
@@ -99,7 +103,6 @@ public class Main {
     }
 
     public static void printUserInput() {
-        scanner.close();
         String result = url + " " + depth + " ";
         for (String domain : domains) {
             if (domain != null) {
