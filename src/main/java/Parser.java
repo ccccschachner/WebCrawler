@@ -11,18 +11,18 @@ public class Parser {
     private Elements headings;
     private Elements links;
 
-    public Parser(String url) throws IOException {
+    public Parser(String url) {
         this.url = url;
         parse();
     }
 
-    public void parse() throws IOException {
+    private void parse(){
         createDocument();
         storeHeadings();
         storeLinks();
     }
 
-    public void createDocument() throws IOException {
+    public void createDocument() {
         try {
             document = Jsoup.connect(url).get();
             title = document.title();

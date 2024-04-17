@@ -7,7 +7,9 @@ public class Main {
     private static int depth;
     private static List<String> domains = new ArrayList<>();
     private static String targetLanguage;
+
     public static Scanner scanner;
+
     private static final String urlRegex = "^(https?://)?([a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}(\\/[a-zA-Z0-9-._?&=]*)?$";
     private static final String depthRegex = "[1-5]";
     private static final String domainRegex = "^(?!.*\\s)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$";
@@ -17,11 +19,12 @@ public class Main {
         System.out.println("\nWelcome to WebCrawler!");
         storeUserInputs();
         printUserInput();
-
     }
+
     public static void initializeScanner() {
         scanner = new Scanner(System.in);
     }
+
     public static void closeScanner() {
         scanner.close();
     }
@@ -39,11 +42,13 @@ public class Main {
         System.out.println("Please enter the URL you want to crawl (e.g. https://example.com):");
         if (scanner.hasNextLine()) {
             url = scanner.nextLine();
+
             if (!url.matches(urlRegex)) {
                 url = "";
                 printInvalidInput();
                 storeUrl();
             }
+
         } else {
             storeUserInputs();
         }
@@ -53,13 +58,16 @@ public class Main {
         System.out.println("Please enter the depth of websites to crawl (1-5):");
         if (scanner.hasNextLine()) {
             String depthInput = scanner.nextLine();
+
             if (depthInput.matches(depthRegex)) {
                 depth = Integer.parseInt(depthInput);
+
             } else {
                 depth = 0;
                 printInvalidInput();
                 storeDepth();
             }
+
         } else {
             storeUserInputs();
         }
@@ -69,13 +77,16 @@ public class Main {
         System.out.println("Please enter domains to be crawled, seperated by a space:");
         if (scanner.hasNextLine()) {
             domains.addAll(List.of(scanner.nextLine().split(" ")));
+
             for (String domain : domains) {
                 if (!domain.matches(domainRegex)) {
-                    domains = new ArrayList<>();;
+                    domains = new ArrayList<>();
+                    ;
                     printInvalidInput();
                     storeDomains();
                 }
             }
+
         } else {
             storeUserInputs();
         }
@@ -85,6 +96,7 @@ public class Main {
         System.out.println("Please enter the target language in ISO-2 format:");
         if (scanner.hasNextLine()) {
             targetLanguage = scanner.next();
+
             if (!targetLanguage.matches(languageRegex)) {
                 targetLanguage = "";
                 printInvalidInput();
