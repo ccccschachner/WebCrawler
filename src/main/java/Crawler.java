@@ -4,37 +4,33 @@ import org.jsoup.nodes.Element;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class Crawler {
     private int depth;
     private List<String> visitedURLs;
     private List<String> domains;
-    private List<Parser> parsers;
-    private Map<Integer,String> brokenLinks;
+    MarkdownWriter markdownWriter;
 
     public Crawler(int depth, List<String> domains){
         this.depth=depth;
-        visitedURLs=new ArrayList<>();
+        this.visitedURLs=new ArrayList<>();
         this.domains=domains;
-        parsers=new ArrayList<>();
-        brokenLinks = new HashMap<>();
+        this.markdownWriter=new MarkdownWriter();
     }
 
     public void crawl(String url, int currentDepth) {
         if(!(currentDepth>depth || visitedURLs.contains(url))){
             Parser parser=new Parser(url);
-            parsers.add(parser);
-            Elements links=parser.getLinks();
             visitedURLs.add(url);
+            markdownWriter.writeDocument(parser,currentDepth);
+            Elements links=parser.getLinks();
 
             for(Element link:links){
                 String nextUrl = link.attr("abs:href");
                 boolean linkIsBroken=isBroken(nextUrl);
                 if(linkIsBroken) {
-                    brokenLinks.put(currentDepth, nextUrl);
+                    markdownWriter.writeBrokenLink(nextUrl,currentDepth);
                 }else{
                     for (String domain : domains) {
                         if (nextUrl.startsWith(domain)) {
@@ -67,13 +63,6 @@ public class Crawler {
 
     public List<String> getDomains() {
         return domains;
-    }
-
-    public List<Parser> getParsers() {
-        return parsers;
-    }
-    public Map<Integer,String> getBrokenLinks() {
-        return brokenLinks;
     }
 
 }
