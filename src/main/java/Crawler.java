@@ -13,7 +13,7 @@ public class Crawler {
     private List<String> visitedURLs;
     private List<String> domains;
     private List<Parser> parsers;
-    private Map<String, Integer> brokenLinks;
+    private Map<Integer,String> brokenLinks;
 
     public Crawler(int depth, List<String> domains){
         this.depth=depth;
@@ -33,7 +33,9 @@ public class Crawler {
             for(Element link:links){
                 String nextUrl = link.attr("abs:href");
                 boolean linkIsBroken=isBroken(nextUrl);
-                if(!linkIsBroken) {
+                if(linkIsBroken) {
+                    brokenLinks.put(currentDepth, nextUrl);
+                }else{
                     for (String domain : domains) {
                         if (nextUrl.startsWith(domain)) {
                             crawl(nextUrl, currentDepth + 1);
@@ -70,7 +72,7 @@ public class Crawler {
     public List<Parser> getParsers() {
         return parsers;
     }
-    public Map<String, Integer> getBrokenLinks() {
+    public Map<Integer,String> getBrokenLinks() {
         return brokenLinks;
     }
 
