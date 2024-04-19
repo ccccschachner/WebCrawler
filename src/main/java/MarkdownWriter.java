@@ -7,8 +7,6 @@ public class MarkdownWriter {
     String filePath; //TODO add Path
     FileWriter writer;
 
-
-
     public MarkdownWriter(){
         initializeWriter();
     }
@@ -47,6 +45,7 @@ public class MarkdownWriter {
         }
     }
 
+    //TODO add Translator
     private void writeHeadings(Parser parser, int depth){
         Elements headings=parser.getHeadings();
         for(Element heading:headings) {
@@ -57,11 +56,11 @@ public class MarkdownWriter {
     }
     private String addHeadingMarking(String tag){
         return switch (tag) {
-            case "h1" -> "# ";
-            case "h2" -> "## ";
-            case "h3" -> "### ";
-            case "h4" -> "#### ";
-            case "h5" -> "##### ";
+            case "h1" -> "#";
+            case "h2" -> "##";
+            case "h3" -> "###";
+            case "h4" -> "####";
+            case "h5" -> "#####";
             case "h6" -> "######";
             default -> "";
         };
