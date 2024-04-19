@@ -19,6 +19,7 @@ public class Main {
         System.out.println("\nWelcome to WebCrawler!");
         storeUserInputs();
         printUserInput();
+        crawlURL();
     }
 
     public static void initializeScanner() {
@@ -107,9 +108,7 @@ public class Main {
             storeUserInputs();
         }
 
-
     }
-
 
     public static void printInvalidInput() {
         System.out.println("Invalid Input!");
@@ -124,6 +123,10 @@ public class Main {
         }
         result += targetLanguage;
         System.out.println("\nThe markdown file based on your inputs\n" + result + "\nis stored in /path/to/file.\n");
+    }
+
+    private static void crawlURL() {
+        new Crawler(depth, domains).crawl(url,0);
     }
 
     public static String getUrl() {
