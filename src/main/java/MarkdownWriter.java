@@ -49,7 +49,8 @@ public class MarkdownWriter {
     private void writeHeadings(Parser parser, int depth){
         Elements headings=parser.getHeadings();
         for(Element heading:headings) {
-            String lineToWrite = addHeadingMarking(heading.tagName().toLowerCase()) + " "+addDepthMarking(depth) + heading.text() + "\n";
+            String translatedHeading=Translator.translateHeading(heading.text());
+            String lineToWrite = addHeadingMarking(heading.tagName().toLowerCase()) + " "+addDepthMarking(depth) + translatedHeading + "\n";
             writeLine(lineToWrite);
         }
 

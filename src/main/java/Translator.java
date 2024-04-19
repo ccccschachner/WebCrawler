@@ -1,8 +1,12 @@
+import com.google.cloud.translate.Translate;
+import com.google.cloud.translate.TranslateOptions;
+import com.google.cloud.translate.Translation;
 public class Translator {
-    String targetLanguage=Main.getTargetLanguage();
-    String sourceLanguage;
+    private static final String targetLanguage=Main.getTargetLanguage();
 
-    public String translate(String heading){
-        return "";
+    public static String translateHeading(String heading){
+        Translate translate = TranslateOptions.getDefaultInstance().getService();
+        Translation translation = translate.translate(heading, Translate.TranslateOption.targetLanguage(targetLanguage));
+        return translation.getTranslatedText();
     }
 }
