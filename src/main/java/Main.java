@@ -125,7 +125,7 @@ public class Main {
     }
 
     private static void crawlURL() {
-        new Crawler(depth, domains).crawl(url,0);
+        new Crawler().crawl(url,0);
     }
 
     public static String getUrl() {

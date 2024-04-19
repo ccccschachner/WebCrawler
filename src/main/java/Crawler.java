@@ -12,10 +12,10 @@ public class Crawler {
     private List<String> domains;
     private MarkdownWriter markdownWriter;
 
-    public Crawler(int depth, List<String> domains){
-        this.depth=depth;
+    public Crawler(){
+        this.depth=Main.getDepth();
         this.visitedURLs=new ArrayList<>();
-        this.domains=domains;
+        this.domains=Main.getDomains();
         this.markdownWriter=new MarkdownWriter();
     }
 
@@ -55,14 +55,6 @@ public class Crawler {
 
     public List<String> getVisitedURLs(){
         return this.visitedURLs;
-    }
-
-    public int getDepth() {
-        return depth;
-    }
-
-    public List<String> getDomains() {
-        return domains;
     }
 
 }
