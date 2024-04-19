@@ -82,7 +82,6 @@ public class Main {
             for (String domain : domains) {
                 if (!domain.matches(domainRegex)) {
                     domains = new ArrayList<>();
-                    ;
                     printInvalidInput();
                     storeDomains();
                 }
@@ -122,7 +121,7 @@ public class Main {
             }
         }
         result += targetLanguage;
-        System.out.println("\nThe markdown file based on your inputs\n" + result + "\nis stored in /path/to/file.\n");
+        System.out.println("\nThe markdown file based on your inputs\n" + result + "\nis stored in "+MarkdownWriter.getFilePath() +"\n");
     }
 
     private static void crawlURL() {

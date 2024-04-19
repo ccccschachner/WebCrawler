@@ -4,8 +4,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class MarkdownWriter {
-    String filePath; //TODO add Path
-    FileWriter writer;
+    private static String filePath; //TODO add Path
+    private FileWriter writer;
 
     public MarkdownWriter(){
         initializeWriter();
@@ -83,5 +83,9 @@ public class MarkdownWriter {
     public void writeBrokenLink(String brokenLink, int depth){
         String lineToWrite="<br>"+addDepthMarking(depth)+" broken link <a>"+brokenLink+"</a>\n\n";
         writeLine(lineToWrite);
+    }
+
+    public static String getFilePath() {
+        return filePath;
     }
 }
