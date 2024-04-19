@@ -10,7 +10,7 @@ public class Crawler {
     private int depth;
     private List<String> visitedURLs;
     private List<String> domains;
-    MarkdownWriter markdownWriter;
+    private MarkdownWriter markdownWriter;
 
     public Crawler(int depth, List<String> domains){
         this.depth=depth;
