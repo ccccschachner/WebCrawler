@@ -7,6 +7,7 @@ public class Main {
     private static int depth;
     private static List<String> domains = new ArrayList<>();
     private static String targetLanguage;
+    private static String filePath;
 
     public static Scanner scanner;
 
@@ -14,12 +15,14 @@ public class Main {
     private static final String depthRegex = "[1-5]";
     private static final String domainRegex = "^(?!.*\\s)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$";
     private static final String languageRegex = "^([a-z]|[A-Z]){2}$";
+    private static final String filePathRegex="^(([a-zA-Z]:\\\\)|(\\\\\\\\)?)(((\\w+)?)(\\\\\\\\)?)+([\\w\\s-.]+\\\\)*([\\w\\s-.])+\\.md$";
 
     public static void main(String[] args) {
         System.out.println("\nWelcome to WebCrawler!");
         storeUserInputs();
-        printUserInput();
+        storeFilePath();
         crawlURL();
+        printUserInput();
     }
 
     public static void initializeScanner() {
@@ -109,6 +112,23 @@ public class Main {
 
     }
 
+    public static void storeFilePath() {
+        System.out.println("Please enter the file path where you want to store your markdownfile:\n" +
+                "(format C:\\Users\\Benutzername\\Documents\\markdown\\output.md");
+        if (scanner.hasNextLine()) {
+            filePath = scanner.next();
+
+            if (!filePath.matches(filePathRegex)) {
+                filePath = "";
+                printInvalidInput();
+                storeFilePath();
+            }
+
+        } else {
+            storeUserInputs();
+        }
+
+    }
     public static void printInvalidInput() {
         System.out.println("Invalid Input!");
     }
@@ -142,6 +162,9 @@ public class Main {
 
     public static List<String> getDomains() {
         return domains;
+    }
+    public static String getFilePath() {
+        return filePath;
     }
 
 }
