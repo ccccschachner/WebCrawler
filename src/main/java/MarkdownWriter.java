@@ -17,24 +17,21 @@ public class MarkdownWriter {
             System.out.println("Error writing Markdown file: " + e.getMessage());
         }
     }
-    public void writeDocument(Parser parser,int depth){
+    public void writeInDocument(Parser parser,int depth){
         if(depth==0){
-            writeHeader(parser,depth);
-        }else{
-            writeLinks(parser,depth);
-            writeHeadings(parser,depth);
+            writeHeader();
         }
+        writeLinks(parser,depth);
+        writeHeadings(parser,depth);
     }
 
-    private void writeHeader(Parser parser, int depth) {
+    private void writeHeader() {
         String input="input: <a>"+Main.getUrl()+"</a>\n";
         String depthToCrawl="<br>depth: "+Main.getDepth()+"\n";
         String sourceLanguage="<br>source language: "+"\n"; //TODO add sourceLanguage
         String targetLanguage="<br>target language: "+Main.getTargetLanguage()+"\n";
         String lineToWrite=input+depthToCrawl+sourceLanguage+targetLanguage;
         writeLine(lineToWrite);
-        writeHeadings(parser,depth);
-
     }
 
     private void writeLinks(Parser parser, int depth) {
