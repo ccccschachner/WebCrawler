@@ -78,7 +78,7 @@ public class Main {
     }
 
     public static void storeDomains() {
-        System.out.println("Please enter domains to be crawled, seperated by a space:");
+        System.out.println("Please enter domains to be crawled, separated by a space:");
         if (scanner.hasNextLine()) {
             domains.addAll(List.of(scanner.nextLine().split(" ")));
 
@@ -113,7 +113,7 @@ public class Main {
     }
 
     public static void storeFilePath() {
-        System.out.println("Please enter the file path where you want to store your markdownfile:\n" +
+        System.out.println("Please enter the file path where you want to store your markdown:\n" +
                 "(format C:\\Users\\Benutzername\\Documents\\markdown\\output.md");
         if (scanner.hasNextLine()) {
             filePath = scanner.next();
