@@ -141,7 +141,7 @@ public class Main {
             }
         }
         result += targetLanguage;
-        System.out.println("\nThe markdown file based on your inputs\n" + result + "\nis stored in "+MarkdownWriter.getFilePath() +"\n");
+        System.out.println("\nThe markdown file based on your inputs\n" + result + "\nis stored in "+ filePath+"\n");
     }
 
     private static void crawlURL() {
