@@ -22,36 +22,52 @@ public class Crawler {
     }
 
     public void crawl(String url, int currentDepth) {
-        if(currentDepth<=depth && !visitedURLs.contains(url)){
+        if(continueCrawling(url,currentDepth)){
             Parser parser=new Parser(url);
             visitedURLs.add(url);
-            markdownWriter.writeDocument(parser,currentDepth);
-            Elements links=parser.getLinks();
+            markdownWriter.writeInDocument(parser,currentDepth);
 
+            Elements links=parser.getLinks();
             for(Element link:links){
                 String nextUrl = link.attr("abs:href");
-                boolean linkIsBroken=isBroken(nextUrl);
-                if(linkIsBroken) {
+                if(linkIsBroken(nextUrl)) {
                     markdownWriter.writeBrokenLink(nextUrl,currentDepth);
                 }else{
-                    for (String domain : domains) {
-                        try {
-                            URI uri = new URI(nextUrl);
-                            String domainFromUrl = uri.getHost();
-                            if (domainFromUrl != null && domainFromUrl.equals(domain)) {
-                                crawl(nextUrl, currentDepth + 1);
-                                break;
-                            }
-                        } catch (URISyntaxException e) {
-                            System.out.println("Invalid URL: " + nextUrl);
-                        }
-                    }
+                    continueCrawlingIfMatchingDomain(url, currentDepth);
                 }
             }
         }
     }
 
-    private boolean isBroken(String url) {
+    private boolean continueCrawling(String url, int currentDepth){
+        return currentDepth<=depth && !visitedURLs.contains(url);
+    }
+
+    private void continueCrawlingIfMatchingDomain(String url, int currentDepth) {
+        for (String domain : domains) {
+            String domainFromUrl=getDomainFromURL(url);
+            if (compareIfDomainMatches(domainFromUrl,domain)) {
+                crawl(url, currentDepth + 1);
+                return;
+            }
+        }
+    }
+
+    private String getDomainFromURL(String url){
+        try{
+            URI uri=new URI(url);
+            return uri.getHost();
+        }catch (URISyntaxException e){
+            System.out.println("Invalid URL: " + url+" URL cannot be converted to URI");
+        }
+        return null;
+    }
+
+    private boolean compareIfDomainMatches(String domainFromURL,String domain){
+        return domainFromURL != null && domainFromURL.equals(domain);
+    }
+
+    private boolean linkIsBroken(String url) {
         try {
             int statusCode = Jsoup.connect(url).ignoreContentType(true).execute().statusCode();
             return statusCode==404;
