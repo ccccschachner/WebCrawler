@@ -9,7 +9,7 @@ public class MarkdownWriter {
     public MarkdownWriter(){
         initializeWriter();
     }
-    private void initializeWriter(){
+    void initializeWriter(){
         try{
             String filePath = Main.getFilePath();
             this.writer= new FileWriter(filePath);
@@ -25,7 +25,7 @@ public class MarkdownWriter {
         writeHeadings(parser,depth);
     }
 
-    private void writeHeader() {
+    void writeHeader() {
         String input="input: <a>"+Main.getUrl()+"</a>\n";
         String depthToCrawl="<br>depth: "+Main.getDepth()+"\n";
         String sourceLanguage="<br>source language: "+"\n"; //TODO add sourceLanguage
@@ -34,7 +34,7 @@ public class MarkdownWriter {
         writeLine(lineToWrite);
     }
 
-    private void writeLinks(Parser parser, int depth) {
+    void writeLinks(Parser parser, int depth) {
         Elements links=parser.getLinks();
         for(Element link:links) {
             String lineToWrite = "<br>" + addDepthMarking(depth) + " link to <a>" + link.text() + "</a>\n\n";
@@ -43,7 +43,7 @@ public class MarkdownWriter {
     }
 
     //TODO add Translator
-    private void writeHeadings(Parser parser, int depth){
+    void writeHeadings(Parser parser, int depth){
         Elements headings=parser.getHeadings();
         for(Element heading:headings) {
            // String translatedHeading=Translator.translateHeading(heading.text());
@@ -52,7 +52,7 @@ public class MarkdownWriter {
         }
 
     }
-    private String addHeadingMarking(String tag){
+    String addHeadingMarking(String tag){
         return switch (tag) {
             case "h1" -> "#";
             case "h2" -> "##";
@@ -63,14 +63,14 @@ public class MarkdownWriter {
             default -> "";
         };
     }
-    private String addDepthMarking(int depth){
+    String addDepthMarking(int depth){
         return switch (depth) {
             case 1 -> "-->";
             case 2 -> "---->";
             default -> "";
         };
     }
-    private void writeLine(String lineToWrite){
+    void writeLine(String lineToWrite){
         try {
             writer.write(lineToWrite);
         } catch (IOException e) {
@@ -78,7 +78,7 @@ public class MarkdownWriter {
         }
     }
 
-    public void writeBrokenLink(String brokenLink, int depth){
+    void writeBrokenLink(String brokenLink, int depth){
         String lineToWrite="<br>"+addDepthMarking(depth)+" broken link <a>"+brokenLink+"</a>\n\n";
         writeLine(lineToWrite);
     }

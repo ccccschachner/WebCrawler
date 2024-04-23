@@ -39,11 +39,11 @@ public class Crawler {
         }
     }
 
-    private boolean continueCrawling(String url, int currentDepth){
+    boolean continueCrawling(String url, int currentDepth){
         return currentDepth<=depth && !visitedURLs.contains(url);
     }
 
-    private void continueCrawlingIfMatchingDomain(String url, int currentDepth) {
+    void continueCrawlingIfMatchingDomain(String url, int currentDepth) {
         for (String domain : domains) {
             String domainFromUrl=getDomainFromURL(url);
             if (compareIfDomainMatches(domainFromUrl,domain)) {
@@ -53,7 +53,7 @@ public class Crawler {
         }
     }
 
-    private String getDomainFromURL(String url){
+    String getDomainFromURL(String url){
         try{
             URI uri=new URI(url);
             return uri.getHost();
@@ -63,11 +63,11 @@ public class Crawler {
         return null;
     }
 
-    private boolean compareIfDomainMatches(String domainFromURL,String domain){
+    boolean compareIfDomainMatches(String domainFromURL,String domain){
         return domainFromURL != null && domainFromURL.equals(domain);
     }
 
-    private boolean linkIsBroken(String url) {
+    boolean linkIsBroken(String url) {
         try {
             int statusCode = Jsoup.connect(url).ignoreContentType(true).execute().statusCode();
             return statusCode==404;
