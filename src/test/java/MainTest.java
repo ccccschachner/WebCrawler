@@ -5,9 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-
 import static org.junit.jupiter.api.Assertions.*;
-
 
 public class MainTest {
 
@@ -39,7 +37,6 @@ public class MainTest {
         Main.storeDomains();
         assertEquals(domainsValid, Main.getDomains());
     }
-
 
     @Test
     public void testStoreTargetLanguageValid() {
