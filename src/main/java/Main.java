@@ -38,7 +38,7 @@ public class Main {
     public static void storeUserInputs() {
         storeUrl();
         storeDepth();
-        storeDomains();
+        //storeDomains();
         storeTargetLanguage();
     }
 
@@ -123,6 +123,8 @@ public class Main {
                 printInvalidInput();
                 storeFilePath();
             }
+
+            System.out.println("Crawling...");
 
         } else {
             storeUserInputs();

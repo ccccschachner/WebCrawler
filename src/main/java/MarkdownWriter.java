@@ -37,8 +37,11 @@ public class MarkdownWriter {
     private void writeLinks(Parser parser, int depth) {
         Elements links=parser.getLinks();
         for(Element link:links) {
-            String lineToWrite = "<br>" + addDepthMarking(depth) + " link to <a>" + link.text() + "</a>\n\n";
-            writeLine(lineToWrite);
+            String url = link.attr("href");
+            if(url.startsWith("www") || url.startsWith("http") || url.startsWith("https")){
+                String lineToWrite = "<br>" + addDepthMarking(depth) + " link to <a>" + url + "</a>\n\n";
+                writeLine(lineToWrite);
+            }
         }
     }
 
@@ -82,4 +85,6 @@ public class MarkdownWriter {
         String lineToWrite="<br>"+addDepthMarking(depth)+" broken link <a>"+brokenLink+"</a>\n\n";
         writeLine(lineToWrite);
     }
+
+
 }
