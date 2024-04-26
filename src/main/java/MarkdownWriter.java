@@ -4,7 +4,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class MarkdownWriter {
-    private static String filePath; //TODO add Path
     private FileWriter writer;
 
     public MarkdownWriter(){
@@ -12,29 +11,27 @@ public class MarkdownWriter {
     }
     private void initializeWriter(){
         try{
+            String filePath = Main.getFilePath();
             this.writer= new FileWriter(filePath);
         } catch (IOException e) {
             System.out.println("Error writing Markdown file: " + e.getMessage());
         }
     }
-    public void writeDocument(Parser parser,int depth){
+    public void writeInDocument(Parser parser,int depth){
         if(depth==0){
-            writeHeader(parser,depth);
-        }else{
-            writeLinks(parser,depth);
-            writeHeadings(parser,depth);
+            writeHeader();
         }
+        writeLinks(parser,depth);
+        writeHeadings(parser,depth);
     }
 
-    private void writeHeader(Parser parser, int depth) {
+    private void writeHeader() {
         String input="input: <a>"+Main.getUrl()+"</a>\n";
         String depthToCrawl="<br>depth: "+Main.getDepth()+"\n";
         String sourceLanguage="<br>source language: "+"\n"; //TODO add sourceLanguage
         String targetLanguage="<br>target language: "+Main.getTargetLanguage()+"\n";
         String lineToWrite=input+depthToCrawl+sourceLanguage+targetLanguage;
         writeLine(lineToWrite);
-        writeHeadings(parser,depth);
-
     }
 
     private void writeLinks(Parser parser, int depth) {
@@ -49,8 +46,8 @@ public class MarkdownWriter {
     private void writeHeadings(Parser parser, int depth){
         Elements headings=parser.getHeadings();
         for(Element heading:headings) {
-            String translatedHeading=Translator.translateHeading(heading.text());
-            String lineToWrite = addHeadingMarking(heading.tagName().toLowerCase()) + " "+addDepthMarking(depth) + translatedHeading + "\n";
+           // String translatedHeading=Translator.translateHeading(heading.text());
+            String lineToWrite = addHeadingMarking(heading.tagName().toLowerCase()) + " "+addDepthMarking(depth) + heading.text() + "\n";
             writeLine(lineToWrite);
         }
 
@@ -84,9 +81,5 @@ public class MarkdownWriter {
     public void writeBrokenLink(String brokenLink, int depth){
         String lineToWrite="<br>"+addDepthMarking(depth)+" broken link <a>"+brokenLink+"</a>\n\n";
         writeLine(lineToWrite);
-    }
-
-    public static String getFilePath() {
-        return filePath;
     }
 }
