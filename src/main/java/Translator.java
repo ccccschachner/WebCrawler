@@ -16,7 +16,7 @@ public class Translator {
         logger.setLevel(Level.SEVERE);
     }
 
-    public static String translateHeading(String heading) {
+    public String translateHeading(String heading) {
         Translate translate = TranslateOptions.newBuilder().setApiKey(API_KEY).build().getService();
         Translation translation = translate.translate(heading, Translate.TranslateOption.targetLanguage(targetLanguage));
         return translation.getTranslatedText();

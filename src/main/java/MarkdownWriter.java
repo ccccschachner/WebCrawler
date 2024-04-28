@@ -6,10 +6,16 @@ import java.io.IOException;
 
 public class MarkdownWriter {
     private FileWriter writer;
+    private Translator translator;
 
 
     public MarkdownWriter(String filePath){
         initializeWriter(filePath);
+        initializeTranslator();
+    }
+
+    void initializeTranslator(){
+        translator=new Translator();
     }
     void initializeWriter(String filePath){
         try{
@@ -45,8 +51,8 @@ public class MarkdownWriter {
     void writeHeadings(Parser parser, int depth){
         Elements headings=parser.getHeadings();
         for(Element heading:headings) {
-           // String translatedHeading=Translator.translateHeading(heading.text());
-            String lineToWrite = addHeadingMarking(heading.tagName().toLowerCase()) + " "+addDepthMarking(depth) + heading.text() + "\n";
+            String translatedHeading=translator.translateHeading(heading.text());
+            String lineToWrite = addHeadingMarking(heading.tagName().toLowerCase()) + " "+addDepthMarking(depth) +translatedHeading+ "\n";
             writeLine(lineToWrite);
         }
 
@@ -96,4 +102,5 @@ public class MarkdownWriter {
         return writer;
     }
     void setWriter(FileWriter writer){this.writer=writer;}
+    void setTranslator(Translator translator){this.translator=translator;}
 }

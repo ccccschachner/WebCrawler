@@ -9,6 +9,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Objects;
 
 
@@ -66,20 +67,28 @@ public class MarkdownWriterTest {
         Parser parserMock = mock(Parser.class);
         mockElementHeadings(parserMock);
 
+        Translator translatorMock=mockTranslator();
+
         markdownWriter= Mockito.spy(new MarkdownWriter(testFilePath));
+        markdownWriter.setTranslator(translatorMock);
 
         markdownWriter.writeHeadings(parserMock, depth);
 
-        String lineHeading1=markdownWriter.addHeadingMarking("h1") +" " +markdownWriter.addDepthMarking(depth) + "Heading1\n";
-        String lineHeading2=markdownWriter.addHeadingMarking("h1") +" " +markdownWriter.addDepthMarking(depth) + "Heading2\n";
+        String heading1=markdownWriter.addHeadingMarking("h1") +" " +markdownWriter.addDepthMarking(depth) + "Überschrift1\n";
 
-        verify(markdownWriter, times(1)).writeLine(lineHeading1);
-        verify(markdownWriter, times(1)).writeLine(lineHeading2);
+        verify(markdownWriter, times(1)).writeLine(heading1);
 
         markdownWriter.closeWriter();
-        writeToRessourceMarkdownCompare(lineHeading1+lineHeading2);
+        writeToRessourceMarkdownCompare(heading1);
         assertTrue(compareMarkdownFiles());
     }
+
+    private Translator mockTranslator() {
+        Translator translatorMock=mock(Translator.class);
+        when(translatorMock.translateHeading("Heading1")).thenReturn("Überschrift1");
+        return translatorMock;
+    }
+
     private void mockElementHeadings(Parser parserMock){
         Elements headingsMock = mock(Elements.class);
 
@@ -87,16 +96,12 @@ public class MarkdownWriterTest {
         when(heading1Mock.text()).thenReturn("Heading1");
         when(heading1Mock.tagName()).thenReturn("h1");
 
-        Element heading2Mock = mock(Element.class);
-        when(heading2Mock.text()).thenReturn("Heading2");
-        when(heading2Mock.tagName()).thenReturn("h1");
-
-        when(headingsMock.iterator()).thenReturn(java.util.Arrays.asList(heading1Mock, heading2Mock).iterator());
+        when(headingsMock.iterator()).thenReturn(List.of(heading1Mock).iterator());
         when(parserMock.getHeadings()).thenReturn(headingsMock);
     }
 
     @Test
-    public void testWriteLinksWitchMocks(){
+    public void testWriteLinks(){
         Parser parserMock = mock(Parser.class);
         mockElementLinks(parserMock);
 
