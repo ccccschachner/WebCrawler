@@ -47,7 +47,6 @@ public class MarkdownWriter {
         }
     }
 
-    //TODO add Translator
     void writeHeadings(Parser parser, int depth){
         Elements headings=parser.getHeadings();
         for(Element heading:headings) {

@@ -149,8 +149,6 @@ public class Main {
     private static void initializeCrawler(){
         crawler=new Crawler(url,depth,domains,filePath,targetLanguage);
     }
-
-    //TODO test
     static void crawlURL(String url) {
         crawler.crawl(url,0);
         System.out.println("Crawling...");
