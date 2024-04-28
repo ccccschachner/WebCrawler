@@ -19,8 +19,9 @@ import static org.mockito.Mockito.*;
 public class MarkdownWriterTest {
 
     private MarkdownWriter markdownWriter;
-    private String testFilePath = "src/test/RessourceMarkdownTest.md";
-    private String compareFilePath ="src/test/RessourceMarkdownCompare.md";
+    private final String testFilePath = "src/test/RessourceMarkdownTest.md";
+    private final String compareFilePath ="src/test/RessourceMarkdownCompare.md";
+    private final int depth = 2;
 
     @BeforeEach
     public void setUp(){
@@ -34,15 +35,16 @@ public class MarkdownWriterTest {
     }
     @Test
     public void testWriteInDocument() {
-        MarkdownWriter markdownWriterMock=mock(MarkdownWriter.class);
-
         Parser parserMock=mock(Parser.class);
-        mockElemetLinks(parserMock);
-        mockElemetHeadings(parserMock);
-        markdownWriterMock.writeInDocument(parserMock, 0);
+        mockElementLinks(parserMock);
+        mockElementHeadings(parserMock);
 
-        verify(markdownWriterMock).writeLinks(parserMock, 0);
-        verify(markdownWriterMock).writeHeadings(parserMock, 0);
+        markdownWriter= Mockito.spy(new MarkdownWriter(testFilePath));
+
+        markdownWriter.writeInDocument(parserMock, depth);
+
+        verify(markdownWriter, times(1)).writeLinks(parserMock,depth);
+        verify(markdownWriter, times(1)).writeHeadings(parserMock,depth);
     }
 
     @Test
@@ -63,11 +65,10 @@ public class MarkdownWriterTest {
     @Test
     public void testWriteHeadings(){
         Parser parserMock = mock(Parser.class);
-        mockElemetHeadings(parserMock);
+        mockElementHeadings(parserMock);
 
         markdownWriter= Mockito.spy(new MarkdownWriter(testFilePath));
 
-        int depth = 2;
         markdownWriter.writeHeadings(parserMock, depth);
 
         String lineHeading1=markdownWriter.addHeadingMarking("h1") +" " +markdownWriter.addDepthMarking(depth) + "Heading1\n";
@@ -80,7 +81,7 @@ public class MarkdownWriterTest {
         writeToRessourceMarkdownCompare(lineHeading1+lineHeading2);
         assertTrue(compareMarkdownFiles());
     }
-    private void mockElemetHeadings(Parser parserMock){
+    private void mockElementHeadings(Parser parserMock){
         Elements headingsMock = mock(Elements.class);
 
         Element heading1Mock = mock(Element.class);
@@ -98,11 +99,10 @@ public class MarkdownWriterTest {
     @Test
     public void testWriteLinksWitchMocks(){
         Parser parserMock = mock(Parser.class);
-        mockElemetLinks(parserMock);
+        mockElementLinks(parserMock);
 
         markdownWriter= Mockito.spy(new MarkdownWriter(testFilePath));
 
-        int depth = 2;
         markdownWriter.writeLinks(parserMock, depth);
 
         String lineLink1="<br>" + markdownWriter.addDepthMarking(depth) + " link to <a>Link1</a>\n\n";
@@ -116,7 +116,7 @@ public class MarkdownWriterTest {
         assertTrue(compareMarkdownFiles());
     }
 
-    private void mockElemetLinks(Parser parserMock){
+    private void mockElementLinks(Parser parserMock){
         Elements linksMock = mock(Elements.class);
 
         Element link1Mock = mock(Element.class);

@@ -19,7 +19,6 @@ public class MarkdownWriter {
         }
     }
 
-    //TODO test
     public void writeInDocument(Parser parser,int depth){
         writeLinks(parser,depth);
         writeHeadings(parser,depth);
