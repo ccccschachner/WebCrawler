@@ -49,7 +49,6 @@ public class MarkdownWriterTest {
 
     @Test
     public void testWriteHeader() {
-
         markdownWriter= Mockito.spy(new MarkdownWriter(testFilePath));
         markdownWriter.writeHeader("https://example.com",3,"en");
 

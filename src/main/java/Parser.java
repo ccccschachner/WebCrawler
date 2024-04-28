@@ -5,7 +5,7 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 
 public class Parser {
-    private String url;
+    private final String url;
     private String title;
     private Document document;
     private Elements headings;

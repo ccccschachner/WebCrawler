@@ -9,9 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Crawler {
-    private int depth;
-    private List<String> visitedURLs;
-    private List<String> domains;
+    private final int depth;
+    private final List<String> visitedURLs;
+    private final List<String> domains;
     private MarkdownWriter markdownWriter;
 
     public Crawler(String url,int depth,List<String> domains,String filePath, String targetLanguage){
@@ -24,8 +24,8 @@ public class Crawler {
 
     public void crawl(String url, int currentDepth) {
         if(continueCrawling(url,currentDepth)){
-            Parser parser=new Parser(url);
-            visitedURLs.add(url);
+            Parser parser=createParser(url);
+            addVisitedUrl(url);
             markdownWriter.writeInDocument(parser,currentDepth);
 
             Elements links=parser.getLinks();
@@ -38,6 +38,9 @@ public class Crawler {
                 }
             }
         }
+    }
+    Parser createParser(String url) {
+        return new Parser(url);
     }
 
     boolean continueCrawling(String url, int currentDepth){
@@ -82,4 +85,15 @@ public class Crawler {
         markdownWriter.closeWriter();
     }
 
+    void addVisitedUrl(String url){
+        visitedURLs.add(url);
+    }
+
+    public List<String> getVisitedURLs() {
+        return visitedURLs;
+    }
+
+    void setMarkdownWriter(MarkdownWriter markdownWriter){
+        this.markdownWriter=markdownWriter;
+    }
 }
