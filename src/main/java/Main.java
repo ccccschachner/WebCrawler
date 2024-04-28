@@ -19,10 +19,12 @@ public class Main {
 
     public static void main(String[] args) {
         System.out.println("\nWelcome to WebCrawler!");
+        initializeScanner();
         storeUserInputs();
         storeFilePath();
         crawlURL();
         printUserInput();
+        closeScanner();
     }
 
     public static void initializeScanner() {
@@ -34,12 +36,10 @@ public class Main {
     }
 
     public static void storeUserInputs() {
-        initializeScanner();
         storeUrl();
         storeDepth();
         storeDomains();
         storeTargetLanguage();
-        closeScanner();
     }
 
     public static void storeUrl() {
@@ -123,6 +123,8 @@ public class Main {
                 printInvalidInput();
                 storeFilePath();
             }
+
+            System.out.println("Crawling...");
 
         } else {
             storeUserInputs();

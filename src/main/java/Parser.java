@@ -36,7 +36,8 @@ public class Parser {
     }
 
     public void storeLinks() {
-        links = document.select("a[href]");
+        links = document.select("a");
+
     }
 
     public String getTitle(){
