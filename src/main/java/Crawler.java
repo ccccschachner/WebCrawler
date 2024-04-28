@@ -14,11 +14,12 @@ public class Crawler {
     private List<String> domains;
     private MarkdownWriter markdownWriter;
 
-    public Crawler(){
-        this.depth=Main.getDepth();
+    public Crawler(String url,int depth,List<String> domains,String filePath, String targetLanguage){
+        this.depth=depth;
         this.visitedURLs=new ArrayList<>();
-        this.domains=Main.getDomains();
-        this.markdownWriter=new MarkdownWriter();
+        this.domains=domains;
+        this.markdownWriter=new MarkdownWriter(filePath);
+        this.markdownWriter.writeHeader(url,depth,targetLanguage);
     }
 
     public void crawl(String url, int currentDepth) {
@@ -33,7 +34,7 @@ public class Crawler {
                 if(linkIsBroken(nextUrl)) {
                     markdownWriter.writeBrokenLink(nextUrl,currentDepth);
                 }else{
-                    continueCrawlingIfMatchingDomain(url, currentDepth);
+                    continueCrawlingMatchingDomain(url, currentDepth);
                 }
             }
         }
@@ -43,7 +44,7 @@ public class Crawler {
         return currentDepth<=depth && !visitedURLs.contains(url);
     }
 
-    void continueCrawlingIfMatchingDomain(String url, int currentDepth) {
+    void continueCrawlingMatchingDomain(String url, int currentDepth) {
         for (String domain : domains) {
             String domainFromUrl=getDomainFromURL(url);
             if (compareIfDomainMatches(domainFromUrl,domain)) {
@@ -69,16 +70,16 @@ public class Crawler {
 
     boolean linkIsBroken(String url) {
         try {
-            int statusCode = Jsoup.connect(url).ignoreContentType(true).execute().statusCode();
-            return statusCode==404;
+            Jsoup.connect(url).ignoreContentType(true).execute().statusCode();
+            return false;
         } catch (IOException e) {
             System.out.println("Error checking link: " + url + ": " + e.getMessage());
-            return false;
+            return true;
         }
     }
 
-    public List<String> getVisitedURLs(){
-        return this.visitedURLs;
+    public void finishCrawling(){
+        markdownWriter.closeWriter();
     }
 
 }

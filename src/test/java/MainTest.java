@@ -8,10 +8,13 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 public class MainTest {
+
+    private Main main;
 
     private final String urlValid = "https://example.com";
     private final String urlInvalid = ".com";
@@ -28,8 +31,6 @@ public class MainTest {
     private final String targetLanguageSysOut = "Please enter the target language in ISO-2 format:";
 
     //TODO: find better testcases for invalid input?
-
-
     @Test
     public void testStoreUrlValid() {
         Main.scanner = new Scanner(new ByteArrayInputStream(urlValid.getBytes()));

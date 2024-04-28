@@ -111,7 +111,7 @@ public class Main {
         }
 
     }
-
+    //TODO test
     public static void storeFilePath() {
         System.out.println("Please enter the file path where you want to store your markdown:\n" +
                 "(format C:\\Users\\Benutzername\\Documents\\markdown\\output.md");
@@ -144,8 +144,11 @@ public class Main {
         System.out.println("\nThe markdown file based on your inputs\n" + result + "\nis stored in "+ filePath+"\n");
     }
 
+    //TODO test
     private static void crawlURL() {
-        new Crawler().crawl(url,0);
+        Crawler crawler=new Crawler(url,depth,domains,filePath,targetLanguage);
+        crawler.crawl(url,0);
+        crawler.finishCrawling();
     }
 
     public static String getUrl() {
@@ -162,9 +165,6 @@ public class Main {
 
     public static List<String> getDomains() {
         return domains;
-    }
-    public static String getFilePath() {
-        return filePath;
     }
 
 }

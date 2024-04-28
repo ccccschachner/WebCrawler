@@ -1,35 +1,35 @@
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
 import java.io.FileWriter;
 import java.io.IOException;
 
 public class MarkdownWriter {
     private FileWriter writer;
 
-    public MarkdownWriter(){
-        initializeWriter();
+
+    public MarkdownWriter(String filePath){
+        initializeWriter(filePath);
     }
-    void initializeWriter(){
+    void initializeWriter(String filePath){
         try{
-            String filePath = Main.getFilePath();
             this.writer= new FileWriter(filePath);
         } catch (IOException e) {
             System.out.println("Error writing Markdown file: " + e.getMessage());
         }
     }
+
+    //TODO test
     public void writeInDocument(Parser parser,int depth){
-        if(depth==0){
-            writeHeader();
-        }
         writeLinks(parser,depth);
         writeHeadings(parser,depth);
     }
 
-    void writeHeader() {
-        String input="input: <a>"+Main.getUrl()+"</a>\n";
-        String depthToCrawl="<br>depth: "+Main.getDepth()+"\n";
+    void writeHeader(String url,int depth, String targetLanguageForDisplaying) {
+        String input="input: <a>"+url+"</a>\n";
+        String depthToCrawl="<br>depth: "+depth+"\n";
         String sourceLanguage="<br>source language: "+"\n"; //TODO add sourceLanguage
-        String targetLanguage="<br>target language: "+Main.getTargetLanguage()+"\n";
+        String targetLanguage="<br>target language: "+targetLanguageForDisplaying+"\n";
         String lineToWrite=input+depthToCrawl+sourceLanguage+targetLanguage;
         writeLine(lineToWrite);
     }
@@ -67,6 +67,9 @@ public class MarkdownWriter {
         return switch (depth) {
             case 1 -> "-->";
             case 2 -> "---->";
+            case 3 -> "------>";
+            case 4 -> "-------->";
+            case 5 -> "---------->";
             default -> "";
         };
     }
@@ -82,4 +85,16 @@ public class MarkdownWriter {
         String lineToWrite="<br>"+addDepthMarking(depth)+" broken link <a>"+brokenLink+"</a>\n\n";
         writeLine(lineToWrite);
     }
+
+    public void closeWriter(){
+        try {
+            writer.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public FileWriter getWriter() {
+        return writer;
+    }
+    void setWriter(FileWriter writer){this.writer=writer;}
 }
