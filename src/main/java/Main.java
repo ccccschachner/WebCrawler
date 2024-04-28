@@ -10,19 +10,22 @@ public class Main {
     private static String filePath;
 
     public static Scanner scanner;
+    private static Crawler crawler;
 
     private static final String urlRegex = "^(https?://)?([a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}(\\/[a-zA-Z0-9-._?&=]*)?$";
     private static final String depthRegex = "[1-5]";
     private static final String domainRegex = "^(?!.*\\s)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$";
     private static final String languageRegex = "^([a-z]|[A-Z]){2}$";
-    private static final String filePathRegex="^(([a-zA-Z]:\\\\)|(\\\\\\\\)?)(((\\w+)?)(\\\\\\\\)?)+([\\w\\s-.]+\\\\)*([\\w\\s-.])+\\.md$";
+    private static final String filePathRegex="^(.*/)?(?:$|(.+?)(?:(\\.[^.]*$)|$))";
+
 
     public static void main(String[] args) {
         System.out.println("\nWelcome to WebCrawler!");
         initializeScanner();
         storeUserInputs();
         storeFilePath();
-        crawlURL();
+        initializeCrawler();
+        crawlURL(url);
         printUserInput();
         closeScanner();
     }
@@ -111,7 +114,6 @@ public class Main {
         }
 
     }
-    //TODO test
     public static void storeFilePath() {
         System.out.println("Please enter the file path where you want to store your markdown:\n" +
                 "(format C:\\Users\\Benutzername\\Documents\\markdown\\output.md");
@@ -123,8 +125,6 @@ public class Main {
                 printInvalidInput();
                 storeFilePath();
             }
-
-            System.out.println("Crawling...");
 
         } else {
             storeUserInputs();
@@ -146,10 +146,14 @@ public class Main {
         System.out.println("\nThe markdown file based on your inputs\n" + result + "\nis stored in "+ filePath+"\n");
     }
 
+    private static void initializeCrawler(){
+        crawler=new Crawler(url,depth,domains,filePath,targetLanguage);
+    }
+
     //TODO test
-    private static void crawlURL() {
-        Crawler crawler=new Crawler(url,depth,domains,filePath,targetLanguage);
+    static void crawlURL(String url) {
         crawler.crawl(url,0);
+        System.out.println("Crawling...");
         crawler.finishCrawling();
     }
 
@@ -167,6 +171,14 @@ public class Main {
 
     public static List<String> getDomains() {
         return domains;
+    }
+
+    public static String getFilePath(){
+        return filePath;
+    }
+
+    public static void setCrawler(Crawler newCrawler){
+        crawler=newCrawler;
     }
 
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 public class MainTest {
 
@@ -13,6 +14,8 @@ public class MainTest {
     private final int depthValid = 3;
     private final List<String> domainsValid = new ArrayList<>();
     private final String targetLanguageValid = "en";
+    private final String filePathValid="C:\\Users\\user\\Documents\\output.md";
+    private final String filePathInvalid="user\\Documents\\output.txt";
 
 
     @Test
@@ -43,6 +46,35 @@ public class MainTest {
         Main.scanner = new Scanner(new ByteArrayInputStream(targetLanguageValid.getBytes()));
         Main.storeTargetLanguage();
         assertEquals(targetLanguageValid, Main.getTargetLanguage());
+    }
+
+    @Test
+    public void testStoreFilePathValid() {
+        Main.scanner = new Scanner(new ByteArrayInputStream(filePathValid.getBytes()));
+        Main.storeFilePath();
+        assertEquals(filePathValid, Main.getFilePath());
+    }
+
+    @Test
+    public void testStoreFilePathInvalid() {
+        Main.scanner = new Scanner(new ByteArrayInputStream(filePathInvalid.getBytes()));
+        Main.storeFilePath();
+        assertEquals(filePathInvalid, Main.getFilePath());
+    }
+
+    @Test
+    public void testCrawlURL(){
+        String url = "http://example.com";
+
+        Crawler crawlerMock=mock(Crawler.class);
+        Main.setCrawler(crawlerMock);
+        doNothing().when(crawlerMock).crawl(url, 0);
+        doNothing().when(crawlerMock).finishCrawling();
+
+        Main.crawlURL(url);
+
+        verify(crawlerMock).crawl(url, 0);
+        verify(crawlerMock).finishCrawling();
     }
 
 }
