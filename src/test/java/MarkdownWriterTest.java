@@ -10,8 +10,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Objects;
-
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -37,16 +35,17 @@ public class MarkdownWriterTest {
 
     @Test
     public void testWriteHeader() {
-        markdownWriter= Mockito.spy(new MarkdownWriter(testFilePath));
-        markdownWriter.writeHeader("https://example.com",3);
+        markdownWriter = Mockito.spy(new MarkdownWriter(testFilePath));
 
-        String testHeader="input: <a>https://example.com</a>\n<br>depth: 3\n\n";
-
-        verify(markdownWriter, times(1)).writeLine(testHeader);
-
+        String header = "https://example.com";
+        markdownWriter.writeHeader(header, depth);
         markdownWriter.closeWriter();
-        writeToRessourceMarkdownCompare(testHeader);
-        assertTrue(compareMarkdownFiles());
+
+        String expectedHeader = String.format("input: <a>%s</a>\n<br>depth: %d\n\n", header, depth);
+        verify(markdownWriter, times(1)).writeLine(expectedHeader);
+
+        writeToRessourceMarkdownCompare(expectedHeader);
+        assertFilesMatch();
     }
 
     @Test
@@ -55,16 +54,14 @@ public class MarkdownWriterTest {
         Elements headings=mockElementHeadings(parserMock);
 
         markdownWriter= Mockito.spy(new MarkdownWriter(testFilePath));
-
         markdownWriter.writeHeadings(headings, depth);
-
-        String heading1=markdownWriter.addHeadingMarking("h1") +" " +markdownWriter.addDepthMarking(depth) + "Heading1\n";
-
-        verify(markdownWriter, times(1)).writeLine(heading1);
-
         markdownWriter.closeWriter();
-        writeToRessourceMarkdownCompare(heading1+"\n");
-        assertTrue(compareMarkdownFiles());
+
+        String expectedHeading=markdownWriter.addHeadingMarking("h1") +" " +markdownWriter.addDepthMarking(depth) + "Heading1\n";
+        verify(markdownWriter, times(1)).writeLine(expectedHeading);
+
+        writeToRessourceMarkdownCompare(expectedHeading+"\n");
+        assertFilesMatch();
     }
 
 
@@ -85,18 +82,20 @@ public class MarkdownWriterTest {
     public void testWriteLink(){
         markdownWriter= Mockito.spy(new MarkdownWriter(testFilePath));
 
-        String lineLink1="<br>" + markdownWriter.addDepthMarking(depth) + " link to <a>Link1</a>\n";
-        String lineLink2="<br>" + markdownWriter.addDepthMarking(depth) + " link to <a>Link2</a>\n";
-
-        markdownWriter.writeLink("Link1", depth);
-        markdownWriter.writeLink("Link2", depth);
-
-        verify(markdownWriter, times(1)).writeLine(lineLink1);
-        verify(markdownWriter, times(1)).writeLine(lineLink2);
-
+        String link1 = "Link1";
+        String link2 = "Link2";
+        markdownWriter.writeLink(link1, depth);
+        markdownWriter.writeLink(link2, depth);
         markdownWriter.closeWriter();
-        writeToRessourceMarkdownCompare(lineLink1+lineLink2);
-        assertTrue(compareMarkdownFiles());
+
+        String expectedLink1 = String.format("<br>%s link to <a>%s</a>\n", markdownWriter.addDepthMarking(depth), link1);
+        String expectedLink2 = String.format("<br>%s link to <a>%s</a>\n", markdownWriter.addDepthMarking(depth), link2);
+
+        verify(markdownWriter, times(1)).writeLine(expectedLink1);
+        verify(markdownWriter, times(1)).writeLine(expectedLink2);
+
+        writeToRessourceMarkdownCompare(expectedLink1+expectedLink2);
+        assertFilesMatch();
     }
 
     @Test
@@ -104,22 +103,14 @@ public class MarkdownWriterTest {
         writeToRessourceMarkdownCompare("Test");
         markdownWriter.writeLine("Test");
         markdownWriter.closeWriter();
-        assertTrue(compareMarkdownFiles());
+        assertFilesMatch();
     }
     @Test
     public void testWriteLineNoEmptyDocument(){
-        markdownWriter.writeLine("Test");
+        String lineToWrite = "Test";
+        markdownWriter.writeLine(lineToWrite);
         markdownWriter.closeWriter();
-        String testContent=getContent(testFilePath);
-        assertFalse(testContent != null && testContent.isEmpty());
-    }
-    private String getContent(String filePath){
-        try {
-            return new String(Files.readAllBytes(Paths.get(filePath)));
-        } catch (IOException e) {
-            fail();
-        }
-        return null;
+        assertFileNotEmpty();
     }
     @Test
     public void testWriteBrokenLink(){
@@ -127,7 +118,7 @@ public class MarkdownWriterTest {
         writeToRessourceMarkdownCompare(lineToWrite);
         markdownWriter.writeBrokenLink("brokenLink",0);
         markdownWriter.closeWriter();
-        assertTrue(compareMarkdownFiles());
+        assertFilesMatch();
     }
 
     @Test
@@ -179,30 +170,44 @@ public class MarkdownWriterTest {
     }
 
     @Test
-    public void testCloseWriter_ClosesWriter() throws IOException {
+    public void testCloseWriter_Closed() throws IOException {
         FileWriter writer = mock(FileWriter.class);
         MarkdownWriter markdownWriter = new MarkdownWriter(testFilePath);
-        markdownWriter.setWriter(writer);
 
+        markdownWriter.setWriter(writer);
         markdownWriter.closeWriter();
+
         verify(writer, times(1)).close();
     }
 
     @Test
-    public void testCloseWriter_TestException() throws IOException {
+    public void testCloseWriter_TestException(){
         FileWriter writer = mock(FileWriter.class);
-        IOException ioException = new IOException("Test IOException");
-        doThrow(ioException).when(writer).close();
+        IOException ioException = mockIOException(writer);
+
         MarkdownWriter markdownWriter = new MarkdownWriter(testFilePath);
         markdownWriter.setWriter(writer);
 
-        RuntimeException exception = assertThrows(RuntimeException.class, markdownWriter::closeWriter);
-        assertEquals(ioException, exception.getCause());
+        RuntimeException expectedException = assertThrows(RuntimeException.class, markdownWriter::closeWriter);
+        assertEquals(ioException, expectedException.getCause());
+    }
+    private IOException mockIOException(FileWriter writer){
+        IOException ioException = new IOException("Test IOException");
+        try {
+            doThrow(ioException).when(writer).close();
+        } catch (IOException e) {
+            fail();
+        }
+        return ioException;
     }
 
-    @AfterEach
-    public void tearDown(){
-        markdownWriter=null;
+    private String getContent(String filePath){
+        try {
+            return new String(Files.readAllBytes(Paths.get(filePath)));
+        } catch (IOException e) {
+            fail();
+        }
+        return null;
     }
 
     private void writeToRessourceMarkdownCompare(String lineToWrite){
@@ -212,9 +217,19 @@ public class MarkdownWriterTest {
             fail();
         }
     }
-    private boolean compareMarkdownFiles(){
+    private void assertFilesMatch() {
         String contentTest = getContent(testFilePath);
-        String contentCompare=getContent(compareFilePath);
-        return Objects.equals(contentTest, contentCompare);
+        String contentCompare = getContent(compareFilePath);
+        assertEquals(contentCompare, contentTest);
     }
+    private void assertFileNotEmpty() {
+        String testContent = getContent(testFilePath);
+        assertNotNull(testContent);
+        assertFalse(testContent.isEmpty());
+    }
+    @AfterEach
+    public void tearDown(){
+        markdownWriter=null;
+    }
+
 }
