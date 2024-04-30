@@ -6,16 +6,10 @@ import java.io.IOException;
 
 public class MarkdownWriter {
     private FileWriter writer;
-    private Translator translator;
 
 
     public MarkdownWriter(String filePath){
         initializeWriter(filePath);
-        initializeTranslator();
-    }
-
-    void initializeTranslator(){
-        translator=new Translator();
     }
     void initializeWriter(String filePath){
         try{
@@ -26,16 +20,14 @@ public class MarkdownWriter {
     }
 
     public void writeInDocument(Parser parser,int depth){
-        writeLinks(parser,depth);
         writeHeadings(parser,depth);
+        writeLinks(parser,depth);
     }
 
-    void writeHeader(String url,int depth, String targetLanguageForDisplaying) {
+    void writeHeader(String url,int depth) {
         String input="input: <a>"+url+"</a>\n";
-        String depthToCrawl="<br>depth: "+depth+"\n";
-        String sourceLanguage="<br>source language: "+"\n"; //TODO add sourceLanguage
-        String targetLanguage="<br>target language: "+targetLanguageForDisplaying+"\n";
-        String lineToWrite=input+depthToCrawl+sourceLanguage+targetLanguage;
+        String depthToCrawl="<br>depth: "+depth+"\n\n";
+        String lineToWrite=input+depthToCrawl;
         writeLine(lineToWrite);
     }
 
@@ -50,8 +42,7 @@ public class MarkdownWriter {
     void writeHeadings(Parser parser, int depth){
         Elements headings=parser.getHeadings();
         for(Element heading:headings) {
-            String translatedHeading=translator.translateHeading(heading.text());
-            String lineToWrite = addHeadingMarking(heading.tagName().toLowerCase()) + " "+addDepthMarking(depth) +translatedHeading+ "\n";
+            String lineToWrite = addHeadingMarking(heading.tagName().toLowerCase()) + " "+addDepthMarking(depth) +heading.text()+ "\n";
             writeLine(lineToWrite);
         }
 
@@ -101,5 +92,4 @@ public class MarkdownWriter {
         return writer;
     }
     void setWriter(FileWriter writer){this.writer=writer;}
-    void setTranslator(Translator translator){this.translator=translator;}
 }

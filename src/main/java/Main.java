@@ -6,7 +6,6 @@ public class Main {
     private static String url;
     private static int depth;
     private static List<String> domains = new ArrayList<>();
-    private static String targetLanguage;
     private static String filePath;
 
     public static Scanner scanner;
@@ -15,7 +14,6 @@ public class Main {
     private static final String urlRegex = "^(https?://)?([a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}(\\/[a-zA-Z0-9-._?&=]*)?$";
     private static final String depthRegex = "[1-5]";
     private static final String domainRegex = "^(?!.*\\s)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$";
-    private static final String languageRegex = "^([a-z]|[A-Z]){2}$";
     private static final String filePathRegex="^(.*/)?(?:$|(.+?)(?:(\\.[^.]*$)|$))";
 
 
@@ -23,7 +21,6 @@ public class Main {
         System.out.println("\nWelcome to WebCrawler!");
         initializeScanner();
         storeUserInputs();
-        storeFilePath();
         initializeCrawler();
         crawlURL(url);
         printUserInput();
@@ -42,7 +39,7 @@ public class Main {
         storeUrl();
         storeDepth();
         storeDomains();
-        storeTargetLanguage();
+        storeFilePath();
     }
 
     public static void storeUrl() {
@@ -97,23 +94,6 @@ public class Main {
             storeUserInputs();
         }
     }
-
-    public static void storeTargetLanguage() {
-        System.out.println("Please enter the target language in ISO-2 format:");
-        if (scanner.hasNextLine()) {
-            targetLanguage = scanner.next();
-
-            if (!targetLanguage.matches(languageRegex)) {
-                targetLanguage = "";
-                printInvalidInput();
-                storeTargetLanguage();
-            }
-
-        } else {
-            storeUserInputs();
-        }
-
-    }
     public static void storeFilePath() {
         System.out.println("Please enter the file path where you want to store your markdown:\n" +
                 "(format C:\\Users\\Benutzername\\Documents\\markdown\\output.md");
@@ -142,12 +122,11 @@ public class Main {
                 result += domain + " ";
             }
         }
-        result += targetLanguage;
         System.out.println("\nThe markdown file based on your inputs\n" + result + "\nis stored in "+ filePath+"\n");
     }
 
     private static void initializeCrawler(){
-        crawler=new Crawler(url,depth,domains,filePath,targetLanguage);
+        crawler=new Crawler(url,depth,domains,filePath);
     }
     static void crawlURL(String url) {
         crawler.crawl(url,0);
@@ -157,10 +136,6 @@ public class Main {
 
     public static String getUrl() {
         return url;
-    }
-
-    public static String getTargetLanguage() {
-        return targetLanguage;
     }
 
     public static int getDepth() {

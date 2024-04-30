@@ -14,12 +14,12 @@ public class Crawler {
     private final List<String> domains;
     private MarkdownWriter markdownWriter;
 
-    public Crawler(String url,int depth,List<String> domains,String filePath, String targetLanguage){
+    public Crawler(String url,int depth,List<String> domains,String filePath){
         this.depth=depth;
         this.visitedURLs=new ArrayList<>();
         this.domains=domains;
         this.markdownWriter=new MarkdownWriter(filePath);
-        this.markdownWriter.writeHeader(url,depth,targetLanguage);
+        this.markdownWriter.writeHeader(url,depth);
     }
 
     public void crawl(String url, int currentDepth) {
