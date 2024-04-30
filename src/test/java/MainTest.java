@@ -13,7 +13,6 @@ public class MainTest {
     private final String urlValid = "https://example.com";
     private final int depthValid = 3;
     private final List<String> domainsValid = new ArrayList<>();
-    private final String targetLanguageValid = "en";
     private final String filePathValid="C:\\Users\\user\\Documents\\output.md";
     private final String filePathInvalid="user\\Documents\\output.txt";
 
@@ -39,13 +38,6 @@ public class MainTest {
         Main.scanner = new Scanner(new ByteArrayInputStream(String.join(" ", domainsValid).getBytes()));
         Main.storeDomains();
         assertEquals(domainsValid, Main.getDomains());
-    }
-
-    @Test
-    public void testStoreTargetLanguageValid() {
-        Main.scanner = new Scanner(new ByteArrayInputStream(targetLanguageValid.getBytes()));
-        Main.storeTargetLanguage();
-        assertEquals(targetLanguageValid, Main.getTargetLanguage());
     }
 
     @Test
