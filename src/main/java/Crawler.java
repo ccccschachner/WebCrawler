@@ -5,6 +5,7 @@ import org.jsoup.nodes.Element;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,20 +24,32 @@ public class Crawler {
     }
 
     public void crawl(String url, int currentDepth) {
-        if(continueCrawling(url,currentDepth)){
-            Parser parser=createParser(url);
-            addVisitedUrl(url);
+        if(currentDepth<=depth && !visitedURLs.contains(url)){
+            Parser parser=new Parser(url);
+            visitedURLs.add(url);
             markdownWriter.writeInDocument(parser,currentDepth);
 
             Elements links=parser.getLinks();
             for(Element link:links){
                 String nextUrl = link.attr("abs:href");
-                if(linkIsBroken(nextUrl)) {
-                    markdownWriter.writeBrokenLink(nextUrl,currentDepth);
-                }else{
-                    continueCrawlingMatchingDomain(url, currentDepth);
+                if (isAllowedDomain(nextUrl)) {
+                    if (!linkIsBroken(nextUrl)) {
+                        crawl(nextUrl, currentDepth + 1);
+                    } else {
+                        markdownWriter.writeBrokenLink(nextUrl, currentDepth);
+                    }
                 }
             }
+        }
+    }
+
+    private boolean isAllowedDomain(String url) {
+        try {
+            URL u = new URL(url);
+            String host = u.getHost();
+            return domains.stream().anyMatch(domain -> host.endsWith(domain));
+        } catch (IOException e) {
+            return false;
         }
     }
     Parser createParser(String url) {
@@ -52,7 +65,6 @@ public class Crawler {
             String domainFromUrl=getDomainFromURL(url);
             if (compareIfDomainMatches(domainFromUrl,domain)) {
                 crawl(url, currentDepth + 1);
-                return;
             }
         }
     }
@@ -73,7 +85,7 @@ public class Crawler {
 
     boolean linkIsBroken(String url) {
         try {
-            Jsoup.connect(url).ignoreContentType(true).execute().statusCode();
+            Jsoup.connect(url).get();
             return false;
         } catch (IOException e) {
             System.out.println("Error checking link: " + url + ": " + e.getMessage());
