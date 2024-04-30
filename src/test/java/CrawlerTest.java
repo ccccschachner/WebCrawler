@@ -29,24 +29,15 @@ public class CrawlerTest {
         crawler= Mockito.spy(new Crawler(testURL,testDepth,testDomains,testFilePath));
 
         MarkdownWriter mockMarkdownWriter=mockMarkdownWriter();
-        Parser mockParser=mock(Parser.class);
-
-        Elements mockElements = new Elements();
-        Element mockElement = mock(Element.class);
-        mockElements.add(mockElement);
-        when(mockParser.getLinks()).thenReturn(mockElements);
-        when(mockElement.attr("abs:href")).thenReturn("https://example.com/page2");
-        when(crawler.linkIsBroken("https://example.com/page2")).thenReturn(false);
-
-        doReturn(mockParser).when(crawler).createParser(anyString());
+        mockParser();
+        mockUnbrokenLink();
 
         crawler.crawl(testURL, testDepth);
 
-        verify(mockMarkdownWriter, times(1)).writeLink(anyString(), eq(testDepth));
-        verify(mockMarkdownWriter,times(1)).writeHeadings(any(),eq(testDepth));
-        verify(mockMarkdownWriter, never()).writeBrokenLink(anyString(), anyInt());
-        verify(crawler,times(1)).crawl(anyString(), anyInt());
-        assertTrue(crawler.getVisitedURLs().contains(testURL));
+        verifyLinkAndHeadingsAreWrittenOnce(mockMarkdownWriter);
+        verifyBrokenLinkNeverWritten(mockMarkdownWriter);
+        verifyCrawlingOnce();
+        assertUrlIsMarkedAsVisited();
     }
 
     @Test
@@ -54,25 +45,18 @@ public class CrawlerTest {
         crawler= Mockito.spy(new Crawler(testURL,testDepth,testDomains,testFilePath));
 
         MarkdownWriter mockMarkdownWriter=mockMarkdownWriter();
-        Parser mockParser=mock(Parser.class);
+        mockParser();
+        mockUnbrokenLink();
 
-        Elements mockElements = new Elements();
-        Element mockElement = mock(Element.class);
-        mockElements.add(mockElement);
-        when(mockParser.getLinks()).thenReturn(mockElements);
-        testDomains.add("example.com");
-        when(mockElement.attr("abs:href")).thenReturn("https://example.com/page2");
-        when(crawler.linkIsBroken("https://example.com/page2")).thenReturn(false);
+        addTestDomain();
 
-        doReturn(mockParser).when(crawler).createParser(anyString());
 
         crawler.crawl(testURL, testDepth);
 
-        verify(mockMarkdownWriter, times(1)).writeLink(anyString(), eq(testDepth));
-        verify(mockMarkdownWriter,times(1)).writeHeadings(any(),eq(testDepth));
-        verify(mockMarkdownWriter, never()).writeBrokenLink(anyString(), anyInt());
-        verify(crawler,times(2)).crawl(anyString(), anyInt());
-        assertTrue(crawler.getVisitedURLs().contains(testURL));
+        verifyLinkAndHeadingsAreWrittenOnce(mockMarkdownWriter);
+        verifyBrokenLinkNeverWritten(mockMarkdownWriter);
+        verifyCrawlingTwice();
+        assertUrlIsMarkedAsVisited();
     }
 
     @Test
@@ -80,23 +64,16 @@ public class CrawlerTest {
         crawler= Mockito.spy(new Crawler(testURL,testDepth,testDomains,testFilePath));
 
         MarkdownWriter mockMarkdownWriter=mockMarkdownWriter();
-        Parser mockParser=mock(Parser.class);
+        mockParser();
+        mockBrokenLink();
+        addTestDomain();
 
-        Elements mockElements = new Elements();
-        Element mockElement = mock(Element.class);
-        mockElements.add(mockElement);
-        when(mockParser.getLinks()).thenReturn(mockElements);
-        testDomains.add("example.com");
-        when(mockElement.attr("abs:href")).thenReturn("https://example.com/page2");
-        when(crawler.linkIsBroken("https://example.com/page2")).thenReturn(true);
-
-        doReturn(mockParser).when(crawler).createParser(anyString());
 
         crawler.crawl(testURL, testDepth);
 
-        verify(crawler,times(1)).crawl(anyString(),anyInt());
-        verify(mockMarkdownWriter, times(1)).writeBrokenLink(anyString(), eq(testDepth));
-        assertTrue(crawler.getVisitedURLs().contains(testURL));
+        verifyCrawlingOnce();
+        verifyBrokenLinkWrittenTwice(mockMarkdownWriter);
+        assertUrlIsMarkedAsVisited();
     }
 
 
@@ -183,6 +160,45 @@ public class CrawlerTest {
         doNothing().when(mockMarkdownWriter).writeHeadings(any(),anyInt());
         doNothing().when(mockMarkdownWriter).writeBrokenLink(anyString(),anyInt());
         return  mockMarkdownWriter;
+    }
+    private void verifyLinkAndHeadingsAreWrittenOnce(MarkdownWriter mockMarkdownWriter){
+        verify(mockMarkdownWriter, times(1)).writeLink(anyString(), eq(testDepth));
+        verify(mockMarkdownWriter,times(1)).writeHeadings(any(),eq(testDepth));
+    }
+    private void verifyBrokenLinkNeverWritten(MarkdownWriter mockMarkdownWriter){
+        verify(mockMarkdownWriter, never()).writeBrokenLink(anyString(), anyInt());
+    }
+    private void assertUrlIsMarkedAsVisited(){
+        assertTrue(crawler.getVisitedURLs().contains(testURL));
+    }
+    private void verifyCrawlingOnce(){
+        verify(crawler,times(1)).crawl(anyString(), anyInt());
+    }
+    private void verifyCrawlingTwice(){
+        verify(crawler,times(2)).crawl(anyString(), anyInt());
+    }
+    private void verifyBrokenLinkWrittenTwice(MarkdownWriter mockMarkdownWriter){
+        verify(mockMarkdownWriter, times(1)).writeBrokenLink(anyString(), eq(testDepth));
+    }
+    private void mockUnbrokenLink(){
+        when(crawler.linkIsBroken("https://example.com/page2")).thenReturn(false);
+    }
+    private void mockBrokenLink(){
+        when(crawler.linkIsBroken("https://example.com/page2")).thenReturn(true);
+    }
+
+    private void mockParser(){
+        Parser mockParser=mock(Parser.class);
+        Element mockLink = mock(Element.class);
+        Elements links = new Elements();
+        links.add(mockLink);
+
+        when(mockParser.getLinks()).thenReturn(links);
+        when(mockLink.attr("abs:href")).thenReturn("https://example.com/page2");
+        doReturn(mockParser).when(crawler).createParser(anyString());
+    }
+    private void addTestDomain(){
+        testDomains.add("example.com");
     }
 
     @AfterEach
