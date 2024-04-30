@@ -19,11 +19,6 @@ public class MarkdownWriter {
         }
     }
 
-    public void writeInDocument(Parser parser,int depth){
-        writeHeadings(parser,depth);
-        writeLinks(parser,depth);
-    }
-
     void writeHeader(String url,int depth) {
         String input="input: <a>"+url+"</a>\n";
         String depthToCrawl="<br>depth: "+depth+"\n\n";
@@ -31,21 +26,17 @@ public class MarkdownWriter {
         writeLine(lineToWrite);
     }
 
-    void writeLinks(Parser parser, int depth) {
-        Elements links=parser.getLinks();
-        for(Element link:links) {
-            String lineToWrite = "<br>" + addDepthMarking(depth) + " link to <a>" + link.text() + "</a>\n\n";
-            writeLine(lineToWrite);
-        }
+    void writeLink(String url, int depth) {
+        String lineToWrite = "<br>" + addDepthMarking(depth) + " link to <a>" + url + "</a>\n";
+        writeLine(lineToWrite);
     }
 
-    void writeHeadings(Parser parser, int depth){
-        Elements headings=parser.getHeadings();
+    void writeHeadings(Elements headings, int depth){
         for(Element heading:headings) {
             String lineToWrite = addHeadingMarking(heading.tagName().toLowerCase()) + " "+addDepthMarking(depth) +heading.text()+ "\n";
             writeLine(lineToWrite);
         }
-
+        writeLine("\n");
     }
     String addHeadingMarking(String tag){
         return switch (tag) {

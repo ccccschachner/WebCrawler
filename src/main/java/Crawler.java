@@ -17,22 +17,25 @@ public class Crawler {
 
     public Crawler(String url,int depth,List<String> domains,String filePath){
         this.depth=depth;
-        this.visitedURLs=new ArrayList<>();
         this.domains=domains;
+        this.visitedURLs=new ArrayList<>();
         this.markdownWriter=new MarkdownWriter(filePath);
         this.markdownWriter.writeHeader(url,depth);
     }
 
     public void crawl(String url, int currentDepth) {
-        if(currentDepth<=depth && !visitedURLs.contains(url)){
-            Parser parser=new Parser(url);
+        if(continueCrawling(url, currentDepth)){
+            Parser parser=createParser(url);
             visitedURLs.add(url);
-            markdownWriter.writeInDocument(parser,currentDepth);
+
+            markdownWriter.writeLink(url,currentDepth);
+            Elements headings=parser.getHeadings();
+            markdownWriter.writeHeadings(headings,currentDepth);
 
             Elements links=parser.getLinks();
             for(Element link:links){
                 String nextUrl = link.attr("abs:href");
-                if (isAllowedDomain(nextUrl)) {
+                if (matchesDomain(nextUrl)) {
                     if (!linkIsBroken(nextUrl)) {
                         crawl(nextUrl, currentDepth + 1);
                     } else {
@@ -43,11 +46,11 @@ public class Crawler {
         }
     }
 
-    private boolean isAllowedDomain(String url) {
+    boolean matchesDomain(String url) {
         try {
             URL u = new URL(url);
             String host = u.getHost();
-            return domains.stream().anyMatch(domain -> host.endsWith(domain));
+            return domains.stream().anyMatch(host::endsWith);
         } catch (IOException e) {
             return false;
         }
@@ -60,15 +63,6 @@ public class Crawler {
         return currentDepth<=depth && !visitedURLs.contains(url);
     }
 
-    void continueCrawlingMatchingDomain(String url, int currentDepth) {
-        for (String domain : domains) {
-            String domainFromUrl=getDomainFromURL(url);
-            if (compareIfDomainMatches(domainFromUrl,domain)) {
-                crawl(url, currentDepth + 1);
-            }
-        }
-    }
-
     String getDomainFromURL(String url){
         try{
             URI uri=new URI(url);
@@ -77,10 +71,6 @@ public class Crawler {
             System.out.println("Invalid URL: " + url+" URL cannot be converted to URI");
         }
         return null;
-    }
-
-    boolean compareIfDomainMatches(String domainFromURL,String domain){
-        return domainFromURL != null && domainFromURL.equals(domain);
     }
 
     boolean linkIsBroken(String url) {

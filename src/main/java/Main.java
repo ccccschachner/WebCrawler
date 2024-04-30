@@ -129,8 +129,8 @@ public class Main {
         crawler=new Crawler(url,depth,domains,filePath);
     }
     static void crawlURL(String url) {
-        crawler.crawl(url,0);
         System.out.println("Crawling...");
+        crawler.crawl(url,0);
         crawler.finishCrawling();
     }
 
