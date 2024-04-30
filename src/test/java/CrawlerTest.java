@@ -68,12 +68,23 @@ public class CrawlerTest {
         mockBrokenLink();
         addTestDomain();
 
-
         crawler.crawl(testURL, testDepth);
 
         verifyCrawlingOnce();
         verifyBrokenLinkWrittenTwice(mockMarkdownWriter);
         assertUrlIsMarkedAsVisited();
+    }
+
+    @Test
+    public void testWriteContentOfPageToMarkdown(){
+        crawler= Mockito.spy(new Crawler(testURL,testDepth,testDomains,testFilePath));
+        Parser mockParser=mockParser();
+
+        MarkdownWriter mockMarkdownWriter=mockMarkdownWriter();
+
+        crawler.writeContentOfPageToMarkdown(mockParser,testURL,testDepth);
+
+        verifyLinkAndHeadingsAreWrittenOnce(mockMarkdownWriter);
     }
 
 
@@ -85,29 +96,29 @@ public class CrawlerTest {
         assertEquals(testURL,visitedUrls.get(0));
     }
     @Test
-    public void testContinueCrawling_CurrentDepthSmallerDepth_UrlNotVisited(){
+    public void testShouldCrawl_CurrentDepthSmallerDepth_UrlNotVisited(){
         int currentDepth=1;
-        assertTrue(crawler.continueCrawling(testURL,currentDepth));
+        assertTrue(crawler.shouldCrawl(testURL,currentDepth));
     }
 
     @Test
-    public void testContinueCrawling_CurrentDepthSmallerDepth_UrlVisited(){
+    public void testShouldCrawl_CurrentDepthSmallerDepth_UrlVisited(){
         int currentDepth=1;
         crawler.addVisitedUrl(testURL);
-        assertFalse(crawler.continueCrawling(testURL,currentDepth));
+        assertFalse(crawler.shouldCrawl(testURL,currentDepth));
     }
 
     @Test
-    public void testContinueCrawling_CurrentDepthGreaterDepth_UrlNotVisited(){
+    public void testShouldCrawl_CurrentDepthGreaterDepth_UrlNotVisited(){
         int currentDepth=3;
-        assertFalse(crawler.continueCrawling(testURL,currentDepth));
+        assertFalse(crawler.shouldCrawl(testURL,currentDepth));
     }
 
     @Test
-    public void testContinueCrawling_CurrentDepthGreaterDepth_UrlVisited(){
+    public void testShouldCrawl_CurrentDepthGreaterDepth_UrlVisited(){
         int currentDepth=3;
         crawler.addVisitedUrl(testURL);
-        assertFalse(crawler.continueCrawling(testURL,currentDepth));
+        assertFalse(crawler.shouldCrawl(testURL,currentDepth));
     }
     @Test
     public void testMatchesDomain_True(){
@@ -187,7 +198,7 @@ public class CrawlerTest {
         when(crawler.linkIsBroken("https://example.com/page2")).thenReturn(true);
     }
 
-    private void mockParser(){
+    private Parser mockParser(){
         Parser mockParser=mock(Parser.class);
         Element mockLink = mock(Element.class);
         Elements links = new Elements();
@@ -196,6 +207,7 @@ public class CrawlerTest {
         when(mockParser.getLinks()).thenReturn(links);
         when(mockLink.attr("abs:href")).thenReturn("https://example.com/page2");
         doReturn(mockParser).when(crawler).createParser(anyString());
+        return mockParser;
     }
     private void addTestDomain(){
         testDomains.add("example.com");

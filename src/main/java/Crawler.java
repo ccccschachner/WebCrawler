@@ -22,23 +22,29 @@ public class Crawler {
     }
 
     public void crawl(String url, int currentDepth) {
-        if(continueCrawling(url, currentDepth)){
+        if(shouldCrawl(url, currentDepth)){
             Parser parser=createParser(url);
             visitedURLs.add(url);
 
-            markdownWriter.writeLink(url,currentDepth);
-            Elements headings=parser.getHeadings();
-            markdownWriter.writeHeadings(headings,currentDepth);
+            writeContentOfPageToMarkdown(parser,url,currentDepth);
+            crawlChildLinks(parser,currentDepth);
+        }
+    }
 
-            Elements links=parser.getLinks();
-            for(Element link:links){
-                String nextUrl = link.attr("abs:href");
-                if (matchesDomain(nextUrl)) {
-                    if (!linkIsBroken(nextUrl)) {
-                        crawl(nextUrl, currentDepth + 1);
-                    } else {
-                        markdownWriter.writeBrokenLink(nextUrl, currentDepth);
-                    }
+    void writeContentOfPageToMarkdown(Parser parser,String url, int currentDepth){
+        markdownWriter.writeLink(url,currentDepth);
+        Elements headings=parser.getHeadings();
+        markdownWriter.writeHeadings(headings,currentDepth);
+    }
+    private void crawlChildLinks(Parser parser, int currentDepth) {
+        Elements links = parser.getLinks();
+        for (Element link : links) {
+            String nextUrl = link.attr("abs:href");
+            if (matchesDomain(nextUrl)) {
+                if (!linkIsBroken(nextUrl)) {
+                    crawl(nextUrl, currentDepth + 1);
+                } else {
+                    markdownWriter.writeBrokenLink(nextUrl, currentDepth);
                 }
             }
         }
@@ -46,8 +52,7 @@ public class Crawler {
 
     boolean matchesDomain(String url) {
         try {
-            URL u = new URL(url);
-            String host = u.getHost();
+            String host = new URL(url).getHost();
             return domains.stream().anyMatch(host::endsWith);
         } catch (IOException e) {
             return false;
@@ -57,7 +62,7 @@ public class Crawler {
         return new Parser(url);
     }
 
-    boolean continueCrawling(String url, int currentDepth){
+    boolean shouldCrawl(String url, int currentDepth){
         return currentDepth<=depth && !visitedURLs.contains(url);
     }
 
