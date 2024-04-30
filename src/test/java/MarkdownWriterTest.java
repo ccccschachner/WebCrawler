@@ -34,26 +34,13 @@ public class MarkdownWriterTest {
         markdownWriter.initializeWriter(testFilePath);
         assertNotNull(markdownWriter.getWriter());
     }
-    @Test
-    public void testWriteInDocument() {
-        Parser parserMock=mock(Parser.class);
-        mockElementLinks(parserMock);
-        mockElementHeadings(parserMock);
-
-        markdownWriter= Mockito.spy(new MarkdownWriter(testFilePath));
-
-        markdownWriter.writeInDocument(parserMock, depth);
-
-        verify(markdownWriter, times(1)).writeLinks(parserMock,depth);
-        verify(markdownWriter, times(1)).writeHeadings(parserMock,depth);
-    }
 
     @Test
     public void testWriteHeader() {
         markdownWriter= Mockito.spy(new MarkdownWriter(testFilePath));
-        markdownWriter.writeHeader("https://example.com",3,"en");
+        markdownWriter.writeHeader("https://example.com",3);
 
-        String testHeader="input: <a>https://example.com</a>\n<br>depth: 3\n<br>source language: \n<br>target language: en\n";
+        String testHeader="input: <a>https://example.com</a>\n<br>depth: 3\n\n";
 
         verify(markdownWriter, times(1)).writeLine(testHeader);
 
@@ -65,31 +52,24 @@ public class MarkdownWriterTest {
     @Test
     public void testWriteHeadings(){
         Parser parserMock = mock(Parser.class);
-        mockElementHeadings(parserMock);
-
-        Translator translatorMock=mockTranslator();
+        Elements headings=mockElementHeadings(parserMock);
 
         markdownWriter= Mockito.spy(new MarkdownWriter(testFilePath));
-        markdownWriter.setTranslator(translatorMock);
 
-        markdownWriter.writeHeadings(parserMock, depth);
+        markdownWriter.writeHeadings(headings, depth);
 
-        String heading1=markdownWriter.addHeadingMarking("h1") +" " +markdownWriter.addDepthMarking(depth) + "Überschrift1\n";
+        String heading1=markdownWriter.addHeadingMarking("h1") +" " +markdownWriter.addDepthMarking(depth) + "Heading1\n";
 
         verify(markdownWriter, times(1)).writeLine(heading1);
 
         markdownWriter.closeWriter();
-        writeToRessourceMarkdownCompare(heading1);
+        writeToRessourceMarkdownCompare(heading1+"\n");
         assertTrue(compareMarkdownFiles());
     }
 
-    private Translator mockTranslator() {
-        Translator translatorMock=mock(Translator.class);
-        when(translatorMock.translateHeading("Heading1")).thenReturn("Überschrift1");
-        return translatorMock;
-    }
 
-    private void mockElementHeadings(Parser parserMock){
+
+    private Elements mockElementHeadings(Parser parserMock){
         Elements headingsMock = mock(Elements.class);
 
         Element heading1Mock = mock(Element.class);
@@ -98,19 +78,18 @@ public class MarkdownWriterTest {
 
         when(headingsMock.iterator()).thenReturn(List.of(heading1Mock).iterator());
         when(parserMock.getHeadings()).thenReturn(headingsMock);
+        return headingsMock;
     }
 
     @Test
-    public void testWriteLinks(){
-        Parser parserMock = mock(Parser.class);
-        mockElementLinks(parserMock);
-
+    public void testWriteLink(){
         markdownWriter= Mockito.spy(new MarkdownWriter(testFilePath));
 
-        markdownWriter.writeLinks(parserMock, depth);
+        String lineLink1="<br>" + markdownWriter.addDepthMarking(depth) + " link to <a>Link1</a>\n";
+        String lineLink2="<br>" + markdownWriter.addDepthMarking(depth) + " link to <a>Link2</a>\n";
 
-        String lineLink1="<br>" + markdownWriter.addDepthMarking(depth) + " link to <a>Link1</a>\n\n";
-        String lineLink2="<br>" + markdownWriter.addDepthMarking(depth) + " link to <a>Link2</a>\n\n";
+        markdownWriter.writeLink("Link1", depth);
+        markdownWriter.writeLink("Link2", depth);
 
         verify(markdownWriter, times(1)).writeLine(lineLink1);
         verify(markdownWriter, times(1)).writeLine(lineLink2);
@@ -118,19 +97,6 @@ public class MarkdownWriterTest {
         markdownWriter.closeWriter();
         writeToRessourceMarkdownCompare(lineLink1+lineLink2);
         assertTrue(compareMarkdownFiles());
-    }
-
-    private void mockElementLinks(Parser parserMock){
-        Elements linksMock = mock(Elements.class);
-
-        Element link1Mock = mock(Element.class);
-        when(link1Mock.text()).thenReturn("Link1");
-
-        Element link2Mock = mock(Element.class);
-        when(link2Mock.text()).thenReturn("Link2");
-
-        when(linksMock.iterator()).thenReturn(java.util.Arrays.asList(link1Mock, link2Mock).iterator());
-        when(parserMock.getLinks()).thenReturn(linksMock);
     }
 
     @Test
