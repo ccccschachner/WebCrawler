@@ -3,8 +3,6 @@ import org.jsoup.select.Elements;
 import org.jsoup.nodes.Element;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,16 +59,6 @@ public class Crawler {
 
     boolean continueCrawling(String url, int currentDepth){
         return currentDepth<=depth && !visitedURLs.contains(url);
-    }
-
-    String getDomainFromURL(String url){
-        try{
-            URI uri=new URI(url);
-            return uri.getHost();
-        }catch (URISyntaxException e){
-            System.out.println("Invalid URL: " + url+" URL cannot be converted to URI");
-        }
-        return null;
     }
 
     boolean linkIsBroken(String url) {
