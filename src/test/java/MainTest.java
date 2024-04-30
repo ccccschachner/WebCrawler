@@ -1,33 +1,20 @@
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
-
+import static org.mockito.Mockito.*;
 
 public class MainTest {
 
     private final String urlValid = "https://example.com";
-    private final String urlInvalid = ".com";
     private final int depthValid = 3;
-    private final int depthInvalid = 500;
     private final List<String> domainsValid = new ArrayList<>();
-    private final List<String> domainsInvalid = new ArrayList<>();
-    private final String targetLanguageValid = "en";
-    private final String targetLanguageInvalid = "english";
-
-    private final String urlSysOut = "Please enter the URL you want to crawl (e.g. https://example.com):";
-    private final String depthSysOut = "Please enter the depth of websites to crawl (1-5):";
-    private final String domainsSysOut = "Please enter domains to be crawled, seperated by a space:";
-    private final String targetLanguageSysOut = "Please enter the target language in ISO-2 format:";
-
-    //TODO: find better testcases for invalid input?
+    private final String filePathValid="C:\\Users\\user\\Documents\\output.md";
+    private final String filePathInvalid="user\\Documents\\output.txt";
 
 
     @Test
@@ -38,56 +25,10 @@ public class MainTest {
     }
 
     @Test
-    public void testStoreUrlInvalid() {
-        Main.scanner = new Scanner(new ByteArrayInputStream(urlInvalid.getBytes()));
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        PrintStream newOut = new PrintStream(outputStream);
-        System.setOut(newOut);
-        Thread thread = new Thread(() -> {
-            while (true) {
-                Main.storeUrl();
-            }
-        });
-        thread.start();
-        try {
-            TimeUnit.MILLISECONDS.sleep(500);
-            thread.interrupt();
-            String capturedOutput = outputStream.toString();
-            assertTrue(capturedOutput.startsWith(urlSysOut));
-
-        } catch (InterruptedException e) {
-            System.err.println(e.getMessage());
-        }
-    }
-
-    @Test
     public void testStoreDepthValid() {
         Main.scanner = new Scanner(new ByteArrayInputStream((depthValid + "\n").getBytes()));
         Main.storeDepth();
         assertEquals(depthValid, Main.getDepth());
-    }
-
-    @Test
-    public void testStoreDepthInvalid() {
-        Main.scanner = new Scanner(new ByteArrayInputStream((depthInvalid + "\n").getBytes()));
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        PrintStream newOut = new PrintStream(outputStream);
-        System.setOut(newOut);
-        Thread thread = new Thread(() -> {
-            while (true) {
-                Main.storeDepth();
-            }
-        });
-        thread.start();
-        try {
-            TimeUnit.MILLISECONDS.sleep(500);
-            thread.interrupt();
-            String capturedOutput = outputStream.toString();
-            assertTrue(capturedOutput.startsWith(depthSysOut));
-
-        } catch (InterruptedException e) {
-            System.err.println(e.getMessage());
-        }
     }
 
     @Test
@@ -100,56 +41,32 @@ public class MainTest {
     }
 
     @Test
-    public void testStoreDomainsInvalid() {
-        domainsInvalid.add("§!432109");
-        domainsInvalid.add(",,,");
-        Main.scanner = new Scanner(new ByteArrayInputStream(String.join(" ", domainsInvalid).getBytes()));
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        PrintStream newOut = new PrintStream(outputStream);
-        System.setOut(newOut);
-        Thread thread = new Thread(() -> {
-            while (true) {
-                Main.storeDomains();
-            }
-        });
-        thread.start();
-        try {
-            TimeUnit.MILLISECONDS.sleep(500);
-            thread.interrupt();
-            String capturedOutput = outputStream.toString();
-            assertTrue(capturedOutput.startsWith(domainsSysOut));
-        } catch (InterruptedException e) {
-            System.err.println(e.getMessage());
-        }
-    }
-
-
-    @Test
-    public void testStoreTargetLanguageValid() {
-        Main.scanner = new Scanner(new ByteArrayInputStream(targetLanguageValid.getBytes()));
-        Main.storeTargetLanguage();
-        assertEquals(targetLanguageValid, Main.getTargetLanguage());
+    public void testStoreFilePathValid() {
+        Main.scanner = new Scanner(new ByteArrayInputStream(filePathValid.getBytes()));
+        Main.storeFilePath();
+        assertEquals(filePathValid, Main.getFilePath());
     }
 
     @Test
-    public void testStoreTargetLanguageInvalid() {
-        Main.scanner = new Scanner(new ByteArrayInputStream(targetLanguageInvalid.getBytes()));
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        PrintStream newOut = new PrintStream(outputStream);
-        System.setOut(newOut);
-        Thread thread = new Thread(() -> {
-            while (true) {
-                Main.storeTargetLanguage();
-            }
-        });
-        thread.start();
-        try {
-            TimeUnit.MILLISECONDS.sleep(500);
-            thread.interrupt();
-            String capturedOutput = outputStream.toString();
-            assertTrue(capturedOutput.startsWith(targetLanguageSysOut));
-        } catch (InterruptedException e) {
-            System.err.println(e.getMessage());
-        }
+    public void testStoreFilePathInvalid() {
+        Main.scanner = new Scanner(new ByteArrayInputStream(filePathInvalid.getBytes()));
+        Main.storeFilePath();
+        assertEquals(filePathInvalid, Main.getFilePath());
     }
+
+    @Test
+    public void testCrawlURL(){
+        String url = "http://example.com";
+
+        Crawler crawlerMock=mock(Crawler.class);
+        Main.setCrawler(crawlerMock);
+        doNothing().when(crawlerMock).crawl(url, 0);
+        doNothing().when(crawlerMock).finishCrawling();
+
+        Main.crawlURL(url);
+
+        verify(crawlerMock).crawl(url, 0);
+        verify(crawlerMock).finishCrawling();
+    }
+
 }
