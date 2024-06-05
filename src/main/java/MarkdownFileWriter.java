@@ -1,11 +1,11 @@
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class MarkdownWriter {
+public class MarkdownFileWriter {
     private FileWriter writer;
 
 
-    public MarkdownWriter(String filePath, String url, int depth){
+    public MarkdownFileWriter(String filePath, String url, int depth){
         initializeWriter(filePath, url,depth);
     }
     void initializeWriter(String filePath,String url, int depth){

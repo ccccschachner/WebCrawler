@@ -10,7 +10,6 @@ public class EntryPoint {
 
     public static Scanner scanner;
     private static Crawler crawler;
-    private static MarkdownWriter markdownWriter;
 
     private static final String urlRegex = "^(https?://)?([a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}(\\/[a-zA-Z0-9-._?&=]*)?$";
     private static final String depthRegex = "[1-5]";
@@ -129,8 +128,8 @@ public class EntryPoint {
     }
 
     private static void initializeCrawlingProcess() {
-        MarkdownWriter markdownWriter=new MarkdownWriter(filePath, url, depth);
-        MarkdownContentWriter contentWriter=new MarkdownContentWriter(markdownWriter);
+        MarkdownFileWriter markdownFileWriter =new MarkdownFileWriter(filePath, url, depth);
+        MarkdownContentWriter contentWriter=new MarkdownContentWriter(markdownFileWriter);
         DomainMatcher domainMatcher=new DomainMatcher(domains);
         crawler = new Crawler(depth, domainMatcher,contentWriter);
     }

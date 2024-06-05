@@ -1,24 +1,24 @@
 public class MarkdownContentWriter {
-    private final MarkdownWriter markdownWriter;
+    private final MarkdownFileWriter markdownFileWriter;
 
-    public MarkdownContentWriter(MarkdownWriter markdownWriter) {
-        this.markdownWriter = markdownWriter;
+    public MarkdownContentWriter(MarkdownFileWriter markdownFileWriter) {
+        this.markdownFileWriter = markdownFileWriter;
     }
 
     public void writeBrokenLinks(Parser parser, int currentDepth) {
         String[] brokenLinks = parser.getBrokenUrls();
         for (String brokenLink : brokenLinks) {
-            markdownWriter.writeBrokenLink(brokenLink, currentDepth);
+            markdownFileWriter.writeBrokenLink(brokenLink, currentDepth);
         }
     }
 
     public void writeContentOfPageToMarkdown(Parser parser, String url, int currentDepth) {
-        markdownWriter.writeLink(url, currentDepth);
+        markdownFileWriter.writeLink(url, currentDepth);
         String[] headings = parser.getHeadings();
-        markdownWriter.writeHeadings(headings, currentDepth);
+        markdownFileWriter.writeHeadings(headings, currentDepth);
     }
 
     public void closeMarkDownContentWriter(){
-        markdownWriter.closeWriter();
+        markdownFileWriter.closeWriter();
     }
 }
