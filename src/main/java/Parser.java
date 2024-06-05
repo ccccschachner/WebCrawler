@@ -88,7 +88,7 @@ public class Parser {
         try {
             Jsoup.connect(link.attr("abs:href")).get();
             return true;
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.out.println("Error checking link: " + url + ": " + e.getMessage());
             return false;
         }
