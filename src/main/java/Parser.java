@@ -4,17 +4,18 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
+
 
 public class Parser {
     private final String url;
     private String documentTitle;
     private Document document;
-    private Elements headings;
-    private Elements allLinks;
-    private Elements intactLinks = new Elements();
-    private Elements brokenLinks = new Elements();
+    private String[] headings;
+    private Elements allAnchors;
+    private Elements intactAnchors = new Elements();
+    private Elements brokenAnchors = new Elements();
+    private String[] intactUrls;
+    private String[] brokenUrls;
 
     public Parser(String url) {
         this.url = url;
@@ -24,8 +25,9 @@ public class Parser {
     private void parse() {
         createDocument();
         storeHeadings();
-        storeLinks();
-        checkLinks();
+        storeAllAnchors();
+        storeIntactUrls();
+        storeBrokenUrls();
     }
 
     public void createDocument() {
@@ -38,40 +40,57 @@ public class Parser {
     }
 
     public void storeHeadings() {
-        headings = document.select("h1, h2, h3, h4, h5, h6");
+        headings = new String[]{document.select("h1, h2, h3, h4, h5, h6").toString()};
     }
 
-    public void storeLinks() {
-        allLinks = document.select("a");
+    public void storeAllAnchors() {
+        allAnchors = document.select("a");
     }
 
-    public void checkLinks() {
-        for (Element link : allLinks) {
-            String url = link.attr("abs:href");
-
-            try{
-                Jsoup.connect(url);
-                intactLinks.add(link);
-            }
-            catch (Exception e){
-                brokenLinks.add(link);
+    public void storeIntactUrls() {
+        for(Element anchor: allAnchors){
+            if(checkElement(anchor)){
+                intactAnchors.add(anchor);
             }
         }
+
+        intactUrls = new String[]{intactAnchors.toString()};
     }
+
+    public void storeBrokenUrls() {
+        for(Element anchor: allAnchors){
+            if(!checkElement(anchor)){
+                brokenAnchors.add(anchor);
+            }
+        }
+
+        brokenUrls = new String[]{brokenAnchors.toString()};
+    }
+
 
     public String getDocumentTitle() {
         return documentTitle;
     }
 
-    public Elements getHeadings() {
+    public String[] getHeadings() {
         return headings;
     }
 
-    public Elements getIntactLinks() {
-        return intactLinks;
+    public String[] getIntactUrls() {
+        return intactUrls;
     }
 
-    public Elements getBrokenLinks() {
-        return brokenLinks;
+    public String[] getBrokenUrls() {
+        return brokenUrls;
+    }
+
+    public boolean checkElement(Element link) {
+        try {
+            Jsoup.connect(link.attr("abs:href")).get();
+            return true;
+        } catch (IOException e) {
+            System.out.println("Error checking link: " + url + ": " + e.getMessage());
+            return false;
+        }
     }
 }

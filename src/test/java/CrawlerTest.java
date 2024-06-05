@@ -204,7 +204,7 @@ public class CrawlerTest {
         Elements links = new Elements();
         links.add(mockLink);
 
-        when(mockParser.getLinks()).thenReturn(links);
+        when(mockParser.getIntactUrls()).thenReturn(links);
         when(mockLink.attr("abs:href")).thenReturn("https://example.com/page2");
         doReturn(mockParser).when(crawler).createParser(anyString());
         return mockParser;

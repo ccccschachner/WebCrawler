@@ -1,4 +1,3 @@
-import org.jsoup.select.Elements;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -8,6 +7,7 @@ public class ParserTest {
     Parser parser;
     String urlValid = "https://example.com";
     String urlInvalid = ".com";
+    String urlWikipedia = "https://en.wikipedia.org/wiki/";
 
 
     @Test
@@ -22,18 +22,18 @@ public class ParserTest {
     public void testStoreHeadings() {
         parser = new Parser(urlValid);
 
-        Elements headings = parser.getHeadings();
+        String[] headings = parser.getHeadings();
         assertNotNull(headings);
-        assertFalse(headings.isEmpty());
+        assertFalse(headings.length == 0);
     }
 
     @Test
     public void testStoreLinks() {
         parser = new Parser(urlValid);
 
-        Elements links = parser.getLinks();
+        String[] links = parser.getIntactUrls();
         assertNotNull(links);
-        assertFalse(links.isEmpty());
+        assertFalse(links.length == 0);
     }
 
     @Test
@@ -42,6 +42,13 @@ public class ParserTest {
             parser = new Parser(urlInvalid);
         });
     }
+
+    @Test
+    public void testValidUrlWikipedia() {
+        parser = new Parser(urlWikipedia);
+        System.out.println(parser.getBrokenUrls());
+    }
+
 
 
 }

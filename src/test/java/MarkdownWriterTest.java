@@ -51,7 +51,7 @@ public class MarkdownWriterTest {
     @Test
     public void testWriteHeadings(){
         Parser parserMock = mock(Parser.class);
-        Elements headings=mockElementHeadings(parserMock);
+        String[] headings = parserMock.getHeadings();
 
         markdownWriter= Mockito.spy(new MarkdownWriter(testFilePath));
         markdownWriter.writeHeadings(headings, depth);
@@ -74,7 +74,7 @@ public class MarkdownWriterTest {
         when(heading1Mock.tagName()).thenReturn("h1");
 
         when(headingsMock.iterator()).thenReturn(List.of(heading1Mock).iterator());
-        when(parserMock.getHeadings()).thenReturn(headingsMock);
+        //when(parserMock.getHeadings()).thenReturn(headingsMock);
         return headingsMock;
     }
 

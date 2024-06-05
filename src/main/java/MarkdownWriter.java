@@ -1,6 +1,3 @@
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -31,9 +28,9 @@ public class MarkdownWriter {
         writeLine(lineToWrite);
     }
 
-    void writeHeadings(Elements headings, int depth){
-        for(Element heading:headings) {
-            String lineToWrite = addHeadingMarking(heading.tagName().toLowerCase()) + " "+addDepthMarking(depth) +heading.text()+ "\n";
+    void writeHeadings(String[] headings, int depth){
+        for(String heading:headings) {
+            String lineToWrite = addHeadingMarking(heading.toLowerCase()) + " "+addDepthMarking(depth) +heading+ "\n";
             writeLine(lineToWrite);
         }
         writeLine("\n");
