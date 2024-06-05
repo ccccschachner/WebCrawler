@@ -37,7 +37,8 @@ public class Crawler {
         markdownWriter.writeHeadings(headings,currentDepth);
     }
     private void crawlChildLinks(Parser parser, int currentDepth) {
-        Elements links = parser.getIntactUrls();
+        //Todo: adapt to changed Parser class
+        /*Elements links = parser.getIntactUrls();
         for (Element link : links) {
             String nextUrl = link.attr("abs:href");
             if (matchesDomain(nextUrl)) {
@@ -47,7 +48,7 @@ public class Crawler {
                     markdownWriter.writeBrokenLink(nextUrl, currentDepth);
                 }
             }
-        }
+        }*/
     }
 
     boolean matchesDomain(String url) {
