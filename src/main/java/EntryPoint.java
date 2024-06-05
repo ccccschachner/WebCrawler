@@ -10,6 +10,7 @@ public class EntryPoint {
 
     public static Scanner scanner;
     private static Crawler crawler;
+    private static MarkdownWriter markdownWriter;
 
     private static final String urlRegex = "^(https?://)?([a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}(\\/[a-zA-Z0-9-._?&=]*)?$";
     private static final String depthRegex = "[1-5]";
@@ -21,6 +22,7 @@ public class EntryPoint {
         System.out.println("\nWelcome to WebCrawler!");
         initializeScanner();
         storeUserInputs();
+        initializeMarkdownWriter();
         initializeCrawler();
         crawlURL(url);
         printUserInput();
@@ -127,15 +129,19 @@ public class EntryPoint {
         System.out.println("\nThe markdown file based on your inputs\n" + result + "\nis stored in " + filePath + "\n");
     }
 
+    private static void initializeMarkdownWriter() {
+        markdownWriter=new MarkdownWriter(filePath);
+    }
+
     private static void initializeCrawler() {
-        crawler = new Crawler(url, depth, domains, filePath);
+        crawler = new Crawler(url, depth, domains, markdownWriter);
     }
 
 
     static void crawlURL(String url) {
         System.out.println("Crawling...");
         crawler.crawl(url, 0);
-        crawler.finishCrawling();
+        crawler.finishWritingAfterCrawling();
     }
 
     public static String getUrl() {
