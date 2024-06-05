@@ -22,8 +22,7 @@ public class EntryPoint {
         System.out.println("\nWelcome to WebCrawler!");
         initializeScanner();
         storeUserInputs();
-        initializeMarkdownWriter();
-        initializeCrawler();
+        initializeCrawlingProcess();
         crawlURL(url);
         printUserInput();
         closeScanner();
@@ -129,12 +128,11 @@ public class EntryPoint {
         System.out.println("\nThe markdown file based on your inputs\n" + result + "\nis stored in " + filePath + "\n");
     }
 
-    private static void initializeMarkdownWriter() {
-        markdownWriter=new MarkdownWriter(filePath);
-    }
-
-    private static void initializeCrawler() {
-        crawler = new Crawler(url, depth, domains, markdownWriter);
+    private static void initializeCrawlingProcess() {
+        MarkdownWriter markdownWriter=new MarkdownWriter(filePath, url, depth);
+        MarkdownContentWriter contentWriter=new MarkdownContentWriter(markdownWriter);
+        DomainMatcher domainMatcher=new DomainMatcher(domains);
+        crawler = new Crawler(depth, domainMatcher,contentWriter);
     }
 
 
