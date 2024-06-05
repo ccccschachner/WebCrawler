@@ -37,7 +37,7 @@ public class Crawler {
         markdownWriter.writeHeadings(headings,currentDepth);
     }
     private void crawlChildLinks(Parser parser, int currentDepth) {
-        Elements links = parser.getLinks();
+        Elements links = parser.getIntactLinks();
         for (Element link : links) {
             String nextUrl = link.attr("abs:href");
             if (matchesDomain(nextUrl)) {

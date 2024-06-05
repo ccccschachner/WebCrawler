@@ -1,25 +1,31 @@
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
 
 public class Parser {
     private final String url;
     private String documentTitle;
     private Document document;
     private Elements headings;
-    private Elements links;
+    private Elements allLinks;
+    private Elements intactLinks = new Elements();
+    private Elements brokenLinks = new Elements();
 
     public Parser(String url) {
         this.url = url;
         parse();
     }
 
-    private void parse(){
+    private void parse() {
         createDocument();
         storeHeadings();
         storeLinks();
+        checkLinks();
     }
 
     public void createDocument() {
@@ -36,19 +42,36 @@ public class Parser {
     }
 
     public void storeLinks() {
-        links = document.select("a");
+        allLinks = document.select("a");
     }
-    //Todo: store broken links
 
-    public String getDocumentTitle(){
+    public void checkLinks() {
+        for (Element link : allLinks) {
+            String url = link.attr("abs:href");
+
+            try{
+                Jsoup.connect(url);
+                intactLinks.add(link);
+            }
+            catch (Exception e){
+                brokenLinks.add(link);
+            }
+        }
+    }
+
+    public String getDocumentTitle() {
         return documentTitle;
     }
 
-    public Elements getHeadings(){
+    public Elements getHeadings() {
         return headings;
     }
 
-    public Elements getLinks(){
-        return links;
+    public Elements getIntactLinks() {
+        return intactLinks;
+    }
+
+    public Elements getBrokenLinks() {
+        return brokenLinks;
     }
 }
