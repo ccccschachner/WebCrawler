@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-public class Main {
+public class EntryPoint {
     private static String url;
     private static int depth;
     private static List<String> domains = new ArrayList<>();
@@ -14,7 +14,7 @@ public class Main {
     private static final String urlRegex = "^(https?://)?([a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}(\\/[a-zA-Z0-9-._?&=]*)?$";
     private static final String depthRegex = "[1-5]";
     private static final String domainRegex = "^(?!.*\\s)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$";
-    private static final String filePathRegex="^(.*/)?(?:$|(.+?)(?:(\\.[^.]*$)|$))";
+    private static final String filePathRegex = "^(.*/)?(?:$|(.+?)(?:(\\.[^.]*$)|$))";
 
 
     public static void main(String[] args) {
@@ -94,6 +94,7 @@ public class Main {
             storeUserInputs();
         }
     }
+
     public static void storeFilePath() {
         System.out.println("Please enter the file path where you want to store your markdown:\n" +
                 "(format C:\\Users\\Benutzername\\Documents\\markdown\\output.md");
@@ -111,6 +112,7 @@ public class Main {
         }
 
     }
+
     public static void printInvalidInput() {
         System.out.println("Invalid Input!");
     }
@@ -122,15 +124,17 @@ public class Main {
                 result += domain + " ";
             }
         }
-        System.out.println("\nThe markdown file based on your inputs\n" + result + "\nis stored in "+ filePath+"\n");
+        System.out.println("\nThe markdown file based on your inputs\n" + result + "\nis stored in " + filePath + "\n");
     }
 
-    private static void initializeCrawler(){
-        crawler=new Crawler(url,depth,domains,filePath);
+    private static void initializeCrawler() {
+        crawler = new Crawler(url, depth, domains, filePath);
     }
+
+
     static void crawlURL(String url) {
         System.out.println("Crawling...");
-        crawler.crawl(url,0);
+        crawler.crawl(url, 0);
         crawler.finishCrawling();
     }
 
@@ -146,12 +150,12 @@ public class Main {
         return domains;
     }
 
-    public static String getFilePath(){
+    public static String getFilePath() {
         return filePath;
     }
 
-    public static void setCrawler(Crawler newCrawler){
-        crawler=newCrawler;
+    public static void setCrawler(Crawler newCrawler) {
+        crawler = newCrawler;
     }
 
 }

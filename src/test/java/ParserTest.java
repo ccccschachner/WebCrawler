@@ -14,8 +14,8 @@ public class ParserTest {
     public void testCreateDocument() {
         parser = new Parser(urlValid);
 
-        assertNotNull(parser.getTitle());
-        assertFalse(parser.getTitle().isEmpty());
+        assertNotNull(parser.getDocumentTitle());
+        assertFalse(parser.getDocumentTitle().isEmpty());
     }
 
     @Test

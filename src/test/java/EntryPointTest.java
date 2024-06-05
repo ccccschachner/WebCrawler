@@ -8,7 +8,7 @@ import java.util.Scanner;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class MainTest {
+public class EntryPointTest {
 
     private final String urlValid = "https://example.com";
     private final int depthValid = 3;
@@ -19,39 +19,39 @@ public class MainTest {
 
     @Test
     public void testStoreUrlValid() {
-        Main.scanner = new Scanner(new ByteArrayInputStream(urlValid.getBytes()));
-        Main.storeUrl();
-        assertEquals(urlValid, Main.getUrl());
+        EntryPoint.scanner = new Scanner(new ByteArrayInputStream(urlValid.getBytes()));
+        EntryPoint.storeUrl();
+        assertEquals(urlValid, EntryPoint.getUrl());
     }
 
     @Test
     public void testStoreDepthValid() {
-        Main.scanner = new Scanner(new ByteArrayInputStream((depthValid + "\n").getBytes()));
-        Main.storeDepth();
-        assertEquals(depthValid, Main.getDepth());
+        EntryPoint.scanner = new Scanner(new ByteArrayInputStream((depthValid + "\n").getBytes()));
+        EntryPoint.storeDepth();
+        assertEquals(depthValid, EntryPoint.getDepth());
     }
 
     @Test
     public void testStoreDomainsValid() {
         domainsValid.add("test.com");
         domainsValid.add("example.at");
-        Main.scanner = new Scanner(new ByteArrayInputStream(String.join(" ", domainsValid).getBytes()));
-        Main.storeDomains();
-        assertEquals(domainsValid, Main.getDomains());
+        EntryPoint.scanner = new Scanner(new ByteArrayInputStream(String.join(" ", domainsValid).getBytes()));
+        EntryPoint.storeDomains();
+        assertEquals(domainsValid, EntryPoint.getDomains());
     }
 
     @Test
     public void testStoreFilePathValid() {
-        Main.scanner = new Scanner(new ByteArrayInputStream(filePathValid.getBytes()));
-        Main.storeFilePath();
-        assertEquals(filePathValid, Main.getFilePath());
+        EntryPoint.scanner = new Scanner(new ByteArrayInputStream(filePathValid.getBytes()));
+        EntryPoint.storeFilePath();
+        assertEquals(filePathValid, EntryPoint.getFilePath());
     }
 
     @Test
     public void testStoreFilePathInvalid() {
-        Main.scanner = new Scanner(new ByteArrayInputStream(filePathInvalid.getBytes()));
-        Main.storeFilePath();
-        assertEquals(filePathInvalid, Main.getFilePath());
+        EntryPoint.scanner = new Scanner(new ByteArrayInputStream(filePathInvalid.getBytes()));
+        EntryPoint.storeFilePath();
+        assertEquals(filePathInvalid, EntryPoint.getFilePath());
     }
 
     @Test
@@ -59,11 +59,11 @@ public class MainTest {
         String url = "http://example.com";
 
         Crawler crawlerMock=mock(Crawler.class);
-        Main.setCrawler(crawlerMock);
+        EntryPoint.setCrawler(crawlerMock);
         doNothing().when(crawlerMock).crawl(url, 0);
         doNothing().when(crawlerMock).finishCrawling();
 
-        Main.crawlURL(url);
+        EntryPoint.crawlURL(url);
 
         verify(crawlerMock).crawl(url, 0);
         verify(crawlerMock).finishCrawling();

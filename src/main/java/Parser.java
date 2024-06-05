@@ -6,7 +6,7 @@ import java.io.IOException;
 
 public class Parser {
     private final String url;
-    private String title;
+    private String documentTitle;
     private Document document;
     private Elements headings;
     private Elements links;
@@ -25,7 +25,7 @@ public class Parser {
     public void createDocument() {
         try {
             document = Jsoup.connect(url).get();
-            title = document.title();
+            documentTitle = document.title();
         } catch (IOException e) {
             System.err.println("Error connecting to: " + url + "\n" + e.getMessage());
         }
@@ -37,11 +37,11 @@ public class Parser {
 
     public void storeLinks() {
         links = document.select("a");
-
     }
+    //Todo: store broken links
 
-    public String getTitle(){
-        return title;
+    public String getDocumentTitle(){
+        return documentTitle;
     }
 
     public Elements getHeadings(){
