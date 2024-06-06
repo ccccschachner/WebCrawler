@@ -32,7 +32,7 @@ public class Parser {
         createDocument();
         storeHeadings();
         storeAllAnchors();
-        storeIntactAndBrokenUrls();
+        storeUrls();
     }
 
     public void createDocument() {
@@ -55,7 +55,7 @@ public class Parser {
         allAnchors = document.select("a");
     }
 
-    public void storeIntactAndBrokenUrls() {
+    public void storeUrls() {
         ExecutorService executor = Executors.newFixedThreadPool(10);
         List<Future<?>> futures = new ArrayList<>();
 
@@ -112,19 +112,23 @@ public class Parser {
 
     public void sortAnchors(Element link) {
         if (hasValidHref(link)) {
-            try {
-                Jsoup.connect(link.attr("abs:href"))
-                        .method(Connection.Method.HEAD)
-                        .timeout(2000)
-                        .execute();
-                synchronized (intactAnchors) {
-                    intactAnchors.add(link);
-                }
-            } catch (IOException e) {
-                synchronized (brokenAnchors) {
-                    brokenAnchors.add(link);
+            String href = link.attr("abs:href");
+            if (href.startsWith("http://") || href.startsWith("https://")) {
+                try {
+                    Jsoup.connect(href)
+                            .method(Connection.Method.HEAD)
+                            .timeout(2000)
+                            .execute();
+                    synchronized (intactAnchors) {
+                        intactAnchors.add(link);
+                    }
+                } catch (IOException e) {
+                    synchronized (brokenAnchors) {
+                        brokenAnchors.add(link);
+                    }
                 }
             }
         }
     }
+
 }
