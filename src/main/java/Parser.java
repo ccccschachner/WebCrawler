@@ -1,10 +1,16 @@
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 public class Parser {
     private final String url;
@@ -12,8 +18,8 @@ public class Parser {
     private Document document;
     private String[] headings;
     private Elements allAnchors;
-    private Elements intactAnchors = new Elements();
-    private Elements brokenAnchors = new Elements();
+    private List<Element> intactAnchors = new ArrayList<>();
+    private List<Element> brokenAnchors = new ArrayList<>();
     private String[] intactUrls;
     private String[] brokenUrls;
 
@@ -26,8 +32,7 @@ public class Parser {
         createDocument();
         storeHeadings();
         storeAllAnchors();
-        storeIntactUrls();
-        storeBrokenUrls();
+        storeIntactAndBrokenUrls();
     }
 
     public void createDocument() {
@@ -40,33 +45,49 @@ public class Parser {
     }
 
     public void storeHeadings() {
-        headings = new String[]{document.select("h1, h2, h3, h4, h5, h6").toString()};
+        Elements headingsElements = document.select("h1, h2, h3, h4, h5, h6");
+        headings = headingsElements.stream()
+                .map(element -> element.tagName() + ": " + element.text())
+                .toArray(String[]::new);
     }
 
     public void storeAllAnchors() {
         allAnchors = document.select("a");
     }
 
-    public void storeIntactUrls() {
-        for(Element anchor: allAnchors){
-            if(checkElement(anchor)){
-                intactAnchors.add(anchor);
+    public void storeIntactAndBrokenUrls() {
+        ExecutorService executor = Executors.newFixedThreadPool(10);
+        List<Future<?>> futures = new ArrayList<>();
+
+        for (Element anchor : allAnchors) {
+            futures.add(executor.submit(() -> sortAnchors(anchor)));
+        }
+
+        for (Future<?> future : futures) {
+            try {
+                future.get();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
 
-        intactUrls = new String[]{intactAnchors.toString()};
-    }
-
-    public void storeBrokenUrls() {
-        for(Element anchor: allAnchors){
-            if(!checkElement(anchor)){
-                brokenAnchors.add(anchor);
+        executor.shutdown();
+        try {
+            if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
+                executor.shutdownNow();
             }
+        } catch (InterruptedException e) {
+            executor.shutdownNow();
         }
 
-        brokenUrls = new String[]{brokenAnchors.toString()};
-    }
+        intactUrls = intactAnchors.stream()
+                .map(anchor -> anchor.attr("abs:href"))
+                .toArray(String[]::new);
 
+        brokenUrls = brokenAnchors.stream()
+                .map(anchor -> anchor.attr("abs:href"))
+                .toArray(String[]::new);
+    }
 
     public String getDocumentTitle() {
         return documentTitle;
@@ -84,13 +105,26 @@ public class Parser {
         return brokenUrls;
     }
 
-    public boolean checkElement(Element link) {
-        try {
-            Jsoup.connect(link.attr("abs:href")).get();
-            return true;
-        } catch (Exception e) {
-            System.out.println("Error checking link: " + url + ": " + e.getMessage());
-            return false;
+    private boolean hasValidHref(Element link) {
+        String href = link.attr("abs:href");
+        return !href.isEmpty();
+    }
+
+    public void sortAnchors(Element link) {
+        if (hasValidHref(link)) {
+            try {
+                Jsoup.connect(link.attr("abs:href"))
+                        .method(Connection.Method.HEAD)
+                        .timeout(2000)
+                        .execute();
+                synchronized (intactAnchors) {
+                    intactAnchors.add(link);
+                }
+            } catch (IOException e) {
+                synchronized (brokenAnchors) {
+                    brokenAnchors.add(link);
+                }
+            }
         }
     }
 }
