@@ -5,8 +5,12 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
-
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 public class Parser {
     private final String url;
@@ -14,8 +18,8 @@ public class Parser {
     private Document document;
     private String[] headings;
     private Elements allAnchors;
-    private Elements intactAnchors = new Elements();
-    private Elements brokenAnchors = new Elements();
+    private List<Element> intactAnchors = new ArrayList<>();
+    private List<Element> brokenAnchors = new ArrayList<>();
     private String[] intactUrls;
     private String[] brokenUrls;
 
@@ -28,8 +32,7 @@ public class Parser {
         createDocument();
         storeHeadings();
         storeAllAnchors();
-        storeIntactUrls();
-        storeBrokenUrls();
+        storeIntactAndBrokenUrls();
     }
 
     public void createDocument() {
@@ -43,29 +46,44 @@ public class Parser {
 
     public void storeHeadings() {
         Elements headingsElements = document.select("h1, h2, h3, h4, h5, h6");
-        List<String> headingsList = headingsElements.stream()
+        headings = headingsElements.stream()
                 .map(element -> element.tagName() + ": " + element.text())
-                .toList();
-
-        headings = headingsList.toArray(new String[0]);
+                .toArray(String[]::new);
     }
-
 
     public void storeAllAnchors() {
         allAnchors = document.select("a");
-        for (Element anchor : allAnchors) {
-            sortAnchor(anchor);
-        }
     }
 
-    public void storeIntactUrls() {
+    public void storeIntactAndBrokenUrls() {
+        ExecutorService executor = Executors.newFixedThreadPool(10);
+        List<Future<?>> futures = new ArrayList<>();
+
+        for (Element anchor : allAnchors) {
+            futures.add(executor.submit(() -> sortAnchors(anchor)));
+        }
+
+        for (Future<?> future : futures) {
+            try {
+                future.get();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        executor.shutdown();
+        try {
+            if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
+                executor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            executor.shutdownNow();
+        }
+
         intactUrls = intactAnchors.stream()
                 .map(anchor -> anchor.attr("abs:href"))
                 .toArray(String[]::new);
 
-    }
-
-    public void storeBrokenUrls() {
         brokenUrls = brokenAnchors.stream()
                 .map(anchor -> anchor.attr("abs:href"))
                 .toArray(String[]::new);
@@ -92,19 +110,20 @@ public class Parser {
         return !href.isEmpty();
     }
 
-
-    public void sortAnchor(Element link) {
-        if(hasValidHref(link)) {
+    public void sortAnchors(Element link) {
+        if (hasValidHref(link)) {
             try {
                 Jsoup.connect(link.attr("abs:href"))
                         .method(Connection.Method.HEAD)
                         .timeout(2000)
                         .execute();
-                intactAnchors.add(link);
-
+                synchronized (intactAnchors) {
+                    intactAnchors.add(link);
+                }
             } catch (IOException e) {
-                System.out.println("Error checking link: "  + e.getMessage());
-                brokenAnchors.add(link);
+                synchronized (brokenAnchors) {
+                    brokenAnchors.add(link);
+                }
             }
         }
     }
