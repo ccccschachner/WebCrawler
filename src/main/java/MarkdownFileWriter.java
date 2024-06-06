@@ -1,16 +1,17 @@
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class MarkdownWriter {
+public class MarkdownFileWriter {
     private FileWriter writer;
 
 
-    public MarkdownWriter(String filePath){
-        initializeWriter(filePath);
+    public MarkdownFileWriter(String filePath, String url, int depth){
+        initializeWriter(filePath, url,depth);
     }
-    void initializeWriter(String filePath){
+    void initializeWriter(String filePath,String url, int depth){
         try{
             this.writer= new FileWriter(filePath);
+            writeHeader(url,depth);
         } catch (IOException e) {
             System.out.println("Error writing Markdown file: " + e.getMessage());
         }
