@@ -1,5 +1,7 @@
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ParserTest {
@@ -7,7 +9,7 @@ public class ParserTest {
     Parser parser;
     String urlValid = "https://example.com";
     String urlInvalid = ".com";
-    String urlWikipedia = "https://en.wikipedia.org/wiki/";
+    String urlWikipedia = "https://de.wikipedia.org/wiki/Wikipedia:Hauptseite";
 
 
     @Test
@@ -44,9 +46,23 @@ public class ParserTest {
     }
 
     @Test
-    public void testValidUrlWikipedia() {
+    public void testWikipediaIntact() {
         parser = new Parser(urlWikipedia);
-        System.out.println(parser.getBrokenUrls());
+        System.out.println("Intact Links:\n" + Arrays.toString(parser.getIntactUrls()));
+        assertNotNull(parser.getIntactUrls());
+    }
+
+    @Test
+    public void testWikipediaBroken() {
+        parser = new Parser(urlWikipedia);
+        System.out.println("Broken Links:\n" + Arrays.toString(parser.getBrokenUrls()));
+
+    }
+
+    @Test
+    public void testGetHeadings() {
+        parser = new Parser(urlWikipedia);
+        System.out.println("Headings:\n" +Arrays.toString(parser.getHeadings()));
     }
 
 
