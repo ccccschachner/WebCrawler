@@ -9,6 +9,10 @@ public class EntryPoint {
     private static String filePath;
 
     public static Scanner scanner;
+
+    private static MarkdownFileWriter markdownFileWriter;
+    private static MarkdownContentWriter contentWriter;
+    private static DomainMatcher domainMatcher;
     private static Crawler crawler;
 
     private static final String urlRegex = "^(https?://)?([a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}(\\/[a-zA-Z0-9-._?&=]*)?$";
@@ -22,6 +26,7 @@ public class EntryPoint {
         initializeScanner();
         storeUserInputs();
         initializeCrawlingProcess();
+        writeHeader();
         crawlURL(url);
         printUserInput();
         closeScanner();
@@ -127,13 +132,16 @@ public class EntryPoint {
         System.out.println("\nThe markdown file based on your inputs\n" + result + "\nis stored in " + filePath + "\n");
     }
 
-    private static void initializeCrawlingProcess() {
-        MarkdownFileWriter markdownFileWriter =new MarkdownFileWriter(filePath, url, depth);
-        MarkdownContentWriter contentWriter=new MarkdownContentWriter(markdownFileWriter);
-        DomainMatcher domainMatcher=new DomainMatcher(domains);
+    static void initializeCrawlingProcess() {
+        markdownFileWriter =new MarkdownFileWriter(filePath);
+        contentWriter=new MarkdownContentWriter(markdownFileWriter);
+        domainMatcher=new DomainMatcher(domains);
         crawler = new Crawler(depth, domainMatcher,contentWriter);
     }
 
+    static void writeHeader() {
+        markdownFileWriter.writeHeader(url,depth);
+    }
 
     static void crawlURL(String url) {
         System.out.println("Crawling...");
@@ -157,9 +165,44 @@ public class EntryPoint {
         return filePath;
     }
 
-    public static void setCrawler(Crawler newCrawler) {
-        crawler = newCrawler;
+    public static void setUrl(String url) {
+        EntryPoint.url = url;
     }
 
+    public static void setDepth(int depth) {
+        EntryPoint.depth = depth;
+    }
+
+    public static void setDomains(List<String> domains) {
+        EntryPoint.domains = domains;
+    }
+
+    public static void setFilePath(String filePath) {
+        EntryPoint.filePath = filePath;
+    }
+
+    public static MarkdownFileWriter getMarkdownFileWriter() {
+        return markdownFileWriter;
+    }
+
+    public static MarkdownContentWriter getContentWriter() {
+        return contentWriter;
+    }
+
+    public static DomainMatcher getDomainMatcher() {
+        return domainMatcher;
+    }
+
+    public static Crawler getCrawler() {
+        return crawler;
+    }
+
+    public static void setCrawler(Crawler crawler) {
+        EntryPoint.crawler=crawler;
+    }
+
+    public static void setMarkdownFileWriter(MarkdownFileWriter markdownFileWriter) {
+        EntryPoint.markdownFileWriter = markdownFileWriter;
+    }
 }
 

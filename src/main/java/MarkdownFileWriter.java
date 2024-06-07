@@ -5,13 +5,12 @@ public class MarkdownFileWriter {
     private FileWriter writer;
 
 
-    public MarkdownFileWriter(String filePath, String url, int depth){
-        initializeWriter(filePath, url,depth);
+    public MarkdownFileWriter(String filePath){
+        initializeWriter(filePath);
     }
-    void initializeWriter(String filePath,String url, int depth){
+    void initializeWriter(String filePath){
         try{
             this.writer= new FileWriter(filePath);
-            writeHeader(url,depth);
         } catch (IOException e) {
             System.out.println("Error writing Markdown file: " + e.getMessage());
         }
@@ -31,7 +30,7 @@ public class MarkdownFileWriter {
 
     void writeHeadings(String[] headings, int depth){
         for(String heading:headings) {
-            String lineToWrite = addHeadingMarking(heading.toLowerCase()) + " "+addDepthMarking(depth) +heading+ "\n";
+            String lineToWrite = addHeadingMarking(heading.toLowerCase().substring(0,2)) + " "+addDepthMarking(depth) +heading.substring(4)+ "\n";
             writeLine(lineToWrite);
         }
         writeLine("\n");

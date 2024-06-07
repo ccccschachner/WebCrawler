@@ -15,6 +15,7 @@ public class EntryPointTest {
     private final List<String> domainsValid = new ArrayList<>();
     private final String filePathValid="C:\\Users\\user\\Documents\\output.md";
     private final String filePathInvalid="user\\Documents\\output.txt";
+    private final String testFilePath="src/test/EntryPointTest.md";
 
 
     @Test
@@ -61,12 +62,43 @@ public class EntryPointTest {
         Crawler crawlerMock=mock(Crawler.class);
         EntryPoint.setCrawler(crawlerMock);
         doNothing().when(crawlerMock).crawl(url, 0);
-        doNothing().when(crawlerMock).finishCrawling();
+        doNothing().when(crawlerMock).finishWritingAfterCrawling();
 
         EntryPoint.crawlURL(url);
 
         verify(crawlerMock).crawl(url, 0);
-        verify(crawlerMock).finishCrawling();
+        verify(crawlerMock).finishWritingAfterCrawling();
+    }
+
+    @Test
+    public void testInitializeCrawlingProcess(){
+        setUpTestValuesForEntryPoint();
+
+        EntryPoint.initializeCrawlingProcess();
+
+        assertNotNull(EntryPoint.getMarkdownFileWriter());
+        assertNotNull(EntryPoint.getContentWriter());
+        assertNotNull(EntryPoint.getDomainMatcher());
+        assertNotNull(EntryPoint.getCrawler());
+    }
+
+    @Test
+    public void testWriteHeader(){
+        MarkdownFileWriter markdownFileWriterMock=mock(MarkdownFileWriter.class);
+        EntryPoint.setMarkdownFileWriter(markdownFileWriterMock);
+
+        setUpTestValuesForEntryPoint();
+
+        EntryPoint.writeHeader();
+
+        verify(markdownFileWriterMock, times(1)).writeHeader(urlValid,depthValid);
+    }
+
+    private void setUpTestValuesForEntryPoint(){
+        EntryPoint.setDepth(depthValid);
+        EntryPoint.setUrl(urlValid);
+        EntryPoint.setDomains(domainsValid);
+        EntryPoint.setFilePath(testFilePath);
     }
 
 }

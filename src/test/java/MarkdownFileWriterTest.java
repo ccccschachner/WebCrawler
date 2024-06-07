@@ -1,5 +1,3 @@
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,7 +7,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -17,26 +14,23 @@ import static org.mockito.Mockito.*;
 
 public class MarkdownFileWriterTest {
 
-    /*private MarkdownFileWriter markdownFileWriter;
+    private MarkdownFileWriter markdownFileWriter;
     private final String testFilePath = "src/test/RessourceMarkdownTest.md";
     private final String compareFilePath ="src/test/RessourceMarkdownCompare.md";
     private final int depth = 2;
 
     @BeforeEach
     public void setUp(){
-        markdownFileWriter =new MarkdownFileWriter(testFilePath);
+        markdownFileWriter = Mockito.spy(new MarkdownFileWriter(testFilePath));
     }
 
     @Test
-    public void testInitializeWriterNotNull(){
-        markdownFileWriter.initializeWriter(testFilePath);
+    public void testInitializedWriterNotNull(){
         assertNotNull(markdownFileWriter.getWriter());
     }
 
     @Test
     public void testWriteHeader() {
-        markdownFileWriter = Mockito.spy(new MarkdownFileWriter(testFilePath));
-
         String header = "https://example.com";
         markdownFileWriter.writeHeader(header, depth);
         markdownFileWriter.closeWriter();
@@ -50,10 +44,8 @@ public class MarkdownFileWriterTest {
 
     @Test
     public void testWriteHeadings(){
-        Parser parserMock = mock(Parser.class);
-        String[] headings = parserMock.getHeadings();
-
-        markdownFileWriter = Mockito.spy(new MarkdownFileWriter(testFilePath));
+        String testHeading="h1: Heading1";
+        String[] headings={testHeading};
         markdownFileWriter.writeHeadings(headings, depth);
         markdownFileWriter.closeWriter();
 
@@ -63,25 +55,8 @@ public class MarkdownFileWriterTest {
         writeToRessourceMarkdownCompare(expectedHeading+"\n");
         assertFilesMatch();
     }
-
-
-
-    private Elements mockElementHeadings(Parser parserMock){
-        Elements headingsMock = mock(Elements.class);
-
-        Element heading1Mock = mock(Element.class);
-        when(heading1Mock.text()).thenReturn("Heading1");
-        when(heading1Mock.tagName()).thenReturn("h1");
-
-        when(headingsMock.iterator()).thenReturn(List.of(heading1Mock).iterator());
-        //when(parserMock.getHeadings()).thenReturn(headingsMock);
-        return headingsMock;
-    }
-
     @Test
     public void testWriteLink(){
-        markdownFileWriter = Mockito.spy(new MarkdownFileWriter(testFilePath));
-
         String link1 = "Link1";
         String link2 = "Link2";
         markdownFileWriter.writeLink(link1, depth);
@@ -106,7 +81,7 @@ public class MarkdownFileWriterTest {
         assertFilesMatch();
     }
     @Test
-    public void testWriteLineNoEmptyDocument(){
+    public void testWriteLine_NoEmptyDocument(){
         String lineToWrite = "Test";
         markdownFileWriter.writeLine(lineToWrite);
         markdownFileWriter.closeWriter();
@@ -172,8 +147,6 @@ public class MarkdownFileWriterTest {
     @Test
     public void testCloseWriter_Closed() throws IOException {
         FileWriter writer = mock(FileWriter.class);
-        MarkdownFileWriter markdownFileWriter = new MarkdownFileWriter(testFilePath);
-
         markdownFileWriter.setWriter(writer);
         markdownFileWriter.closeWriter();
 
@@ -185,7 +158,6 @@ public class MarkdownFileWriterTest {
         FileWriter writer = mock(FileWriter.class);
         IOException ioException = mockIOException(writer);
 
-        MarkdownFileWriter markdownFileWriter = new MarkdownFileWriter(testFilePath);
         markdownFileWriter.setWriter(writer);
 
         RuntimeException expectedException = assertThrows(RuntimeException.class, markdownFileWriter::closeWriter);
@@ -227,9 +199,10 @@ public class MarkdownFileWriterTest {
         assertNotNull(testContent);
         assertFalse(testContent.isEmpty());
     }
+
     @AfterEach
     public void tearDown(){
-        markdownFileWriter =null;
-    }*/
+        markdownFileWriter=null;
+    }
 
 }
