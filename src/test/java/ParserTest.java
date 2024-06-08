@@ -65,6 +65,4 @@ public class ParserTest {
         System.out.println("Headings:\n" +Arrays.toString(parser.getHeadings()));
     }
 
-
-
 }

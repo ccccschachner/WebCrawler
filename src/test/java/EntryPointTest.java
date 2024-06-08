@@ -19,9 +19,9 @@ public class EntryPointTest {
 
 
     @Test
-    public void testStoreUrlValid() {
+    public void testStoreUrlsValid() {
         EntryPoint.scanner = new Scanner(new ByteArrayInputStream(urlValid.getBytes()));
-        EntryPoint.storeUrl();
+        EntryPoint.storeUrls();
         assertEquals(urlValid, EntryPoint.getUrl());
     }
 
