@@ -45,7 +45,7 @@ public class Crawler {
         return currentDepth<=depth && !visitedURLs.contains(url);
     }
 
-    public void finishWritingAfterCrawling(){contentWriter.closeMarkDownContentWriter();}
+    //public void finishWritingAfterCrawling(){contentWriter.closeMarkDownContentWriter();}
 
     void addVisitedUrl(String url){
         visitedURLs.add(url);

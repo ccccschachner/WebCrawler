@@ -3,12 +3,13 @@ import java.util.List;
 import java.util.Scanner;
 
 public class EntryPoint {
-    private static String url;
+    private static List<String> urls = new ArrayList<>();
     private static int depth;
     private static List<String> domains = new ArrayList<>();
     private static String filePath;
 
     public static Scanner scanner;
+    public static List<Thread> threads = new ArrayList<>();
 
     private static MarkdownFileWriter markdownFileWriter;
     private static MarkdownContentWriter contentWriter;
@@ -26,37 +27,31 @@ public class EntryPoint {
         initializeScanner();
         storeUserInputs();
         initializeCrawlingProcess();
-        writeHeader();
-        crawlURL(url);
-        printUserInput();
-        closeScanner();
+        startCrawlingProcess();
+        closeProgram();
     }
 
-    public static void initializeScanner() {
-        scanner = new Scanner(System.in);
-    }
-
-    public static void closeScanner() {
-        scanner.close();
-    }
 
     public static void storeUserInputs() {
-        storeUrl();
+        storeUrls();
         storeDepth();
         storeDomains();
         storeFilePath();
     }
 
-    public static void storeUrl() {
-        System.out.println("Please enter the URL you want to crawl (e.g. https://example.com):");
+    public static void storeUrls() {
+        System.out.println("Please enter URLs you want to crawl, separated by a space (e.g. https://example.com).");
         if (scanner.hasNextLine()) {
-            url = scanner.nextLine();
+            urls.addAll(List.of(scanner.nextLine().split(" ")));
 
-            if (!url.matches(urlRegex)) {
-                url = "";
-                printInvalidInput();
-                storeUrl();
+            for (String url : urls) {
+                if (!url.matches(urlRegex)) {
+                    urls = new ArrayList<>();
+                    printInvalidInput();
+                    storeDomains();
+                }
             }
+
 
         } else {
             storeUserInputs();
@@ -102,7 +97,7 @@ public class EntryPoint {
 
     public static void storeFilePath() {
         System.out.println("Please enter the file path where you want to store your markdown:\n" +
-                "(format C:\\Users\\Benutzername\\Documents\\markdown\\output.md");
+                "(format C:\\Users\\Benutzername\\Documents\\markdown\\output.md)");
         if (scanner.hasNextLine()) {
             filePath = scanner.next();
 
@@ -118,40 +113,78 @@ public class EntryPoint {
 
     }
 
+    static void initializeCrawlingProcess() {
+        markdownFileWriter = new MarkdownFileWriter(filePath);
+        contentWriter = new MarkdownContentWriter(markdownFileWriter);
+        domainMatcher = new DomainMatcher(domains);
+        crawler = new Crawler(depth, domainMatcher, contentWriter);
+    }
+
+    public static void initializeScanner() {
+        scanner = new Scanner(System.in);
+    }
+
+    static void startCrawlingProcess() {
+        for (String url : urls) {
+            Thread thread = new Thread(new CrawlTask(url));
+            thread.start();
+            threads.add(thread);
+        }
+    }
+
     public static void printInvalidInput() {
         System.out.println("Invalid Input!");
     }
 
     public static void printUserInput() {
-        String result = url + " " + depth + " ";
+        String result = "";
+
+        for (String url : urls) {
+            if (url != null) {
+                result += url + " ";
+            }
+        }
+
+        result += depth + " ";
+
         for (String domain : domains) {
             if (domain != null) {
                 result += domain + " ";
             }
         }
-        System.out.println("\nThe markdown file based on your inputs\n" + result + "\nis stored in " + filePath + "\n");
+        System.out.println("\nThe markdown file based on your inputs [" + result + "] is stored in " + filePath + ".\n");
     }
 
-    static void initializeCrawlingProcess() {
-        markdownFileWriter =new MarkdownFileWriter(filePath);
-        contentWriter=new MarkdownContentWriter(markdownFileWriter);
-        domainMatcher=new DomainMatcher(domains);
-        crawler = new Crawler(depth, domainMatcher,contentWriter);
-    }
 
-    static void writeHeader() {
-        markdownFileWriter.writeHeader(url,depth);
+    static void writeHeader(String url) {
+        markdownFileWriter.writeHeader(url, depth);
     }
 
     static void crawlURL(String url) {
-        System.out.println("Crawling...");
         crawler.crawl(url, 0);
-        crawler.finishWritingAfterCrawling();
+        //crawler.finishWritingAfterCrawling();
     }
 
-    public static String getUrl() {
-        return url;
+    public static void closeScanner() {
+        scanner.close();
     }
+
+    public static void closeProgram() {
+        for (Thread thread : threads) {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                System.err.println("Main thread was interrupted: " + e.getMessage());
+            }
+        }
+
+        closeScanner();
+        printUserInput();
+    }
+    /*public static String getUrl() {
+        return url;
+    }*/
 
     public static int getDepth() {
         return depth;
@@ -165,9 +198,9 @@ public class EntryPoint {
         return filePath;
     }
 
-    public static void setUrl(String url) {
+    /*public static void setUrl(String url) {
         EntryPoint.url = url;
-    }
+    }*/
 
     public static void setDepth(int depth) {
         EntryPoint.depth = depth;
@@ -198,11 +231,12 @@ public class EntryPoint {
     }
 
     public static void setCrawler(Crawler crawler) {
-        EntryPoint.crawler=crawler;
+        EntryPoint.crawler = crawler;
     }
 
     public static void setMarkdownFileWriter(MarkdownFileWriter markdownFileWriter) {
         EntryPoint.markdownFileWriter = markdownFileWriter;
     }
+
 }
 

@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 public class Parser {
     private final String url;
@@ -72,18 +71,18 @@ public class Parser {
         }
 
         executor.shutdown();
-        try {
-            if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
-                executor.shutdownNow();
-            }
-        } catch (InterruptedException e) {
-            executor.shutdownNow();
-        }
 
+        storeIntactUrls();
+        storeBrokenUrls();
+    }
+
+    public void storeIntactUrls(){
         intactUrls = intactAnchors.stream()
                 .map(anchor -> anchor.attr("abs:href"))
                 .toArray(String[]::new);
+    }
 
+    public void storeBrokenUrls(){
         brokenUrls = brokenAnchors.stream()
                 .map(anchor -> anchor.attr("abs:href"))
                 .toArray(String[]::new);
@@ -117,7 +116,7 @@ public class Parser {
                 try {
                     Jsoup.connect(href)
                             .method(Connection.Method.HEAD)
-                            .timeout(2000)
+                            .timeout(3000)
                             .execute();
                     synchronized (intactAnchors) {
                         intactAnchors.add(link);
