@@ -18,7 +18,8 @@ public class MarkdownContentWriter {
         markdownFileWriter.writeHeadings(headings, currentDepth);
     }
 
-    /*public void closeMarkDownContentWriter(){
+
+    public void closeMarkDownContentWriter(){
         markdownFileWriter.closeWriter();
-    }*/
+    }
 }
