@@ -4,17 +4,15 @@ import java.util.Scanner;
 
 public class EntryPoint {
     private static List<String> urls = new ArrayList<>();
-    private static int depth;
     private static List<String> domains = new ArrayList<>();
+    private static List<String> files = new ArrayList<>();
+    private static List<Thread> threads = new ArrayList<>();
+
+    private static int depth;
     private static String filePath;
-
-    public static Scanner scanner;
-    public static List<Thread> threads = new ArrayList<>();
-
-    private static MarkdownFileWriter markdownFileWriter;
-    private static MarkdownContentWriter contentWriter;
-    private static DomainMatcher domainMatcher;
     private static Crawler crawler;
+    private static MarkdownCombiner markdownCombiner;
+    public static Scanner scanner;
 
     private static final String urlRegex = "^(https?://)?([a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}(\\/[a-zA-Z0-9-._?&=]*)?$";
     private static final String depthRegex = "[1-5]";
@@ -26,10 +24,9 @@ public class EntryPoint {
         System.out.println("\nWelcome to WebCrawler!");
         initializeScanner();
         storeUserInputs();
-        startCrawlingProcess();
+        startCrawlerThreads();
         closeProgram();
     }
-
 
     public static void storeUserInputs() {
         storeUrls();
@@ -47,10 +44,9 @@ public class EntryPoint {
                 if (!url.matches(urlRegex)) {
                     urls = new ArrayList<>();
                     printInvalidInput();
-                    storeDomains();
+                    storeUrls();
                 }
             }
-
 
         } else {
             storeUserInputs();
@@ -114,11 +110,14 @@ public class EntryPoint {
         scanner = new Scanner(System.in);
     }
 
-    static void startCrawlingProcess() {
-
+    static void startCrawlerThreads() {
         int threadCounter = 1;
+
         for (String url : urls) {
-            Thread thread = new Thread(new CrawlTask(url, filePath+"_"+threadCounter));
+            String output = filePath+"_"+threadCounter;
+            files.add(output);
+
+            Thread thread = new Thread(new CrawlTask(url, output));
             thread.start();
             threads.add(thread);
             threadCounter++;
@@ -149,14 +148,10 @@ public class EntryPoint {
     }
 
 
-    static void writeHeader(String url) {
-        markdownFileWriter.writeHeader(url, depth);
+    public static void createFinalMarkdown() {
+        markdownCombiner = new MarkdownCombiner(filePath);
+        markdownCombiner.combineFiles();
     }
-
-    /*static void crawlURL(String url) {
-        crawler.crawl(url, 0);
-        //crawler.finishWritingAfterCrawling();
-    }*/
 
     public static void closeScanner() {
         scanner.close();
@@ -172,6 +167,7 @@ public class EntryPoint {
             }
         }
 
+        createFinalMarkdown();
         closeScanner();
         printUserInput();
     }
@@ -179,6 +175,10 @@ public class EntryPoint {
 
     public static List<String> getUrls() {
         return urls;
+    }
+
+    public static List<String> getFiles(){
+        return files;
     }
 
     public static int getDepth() {
@@ -209,28 +209,12 @@ public class EntryPoint {
         EntryPoint.filePath = filePath;
     }
 
-    public static MarkdownFileWriter getMarkdownFileWriter() {
-        return markdownFileWriter;
-    }
-
-    public static MarkdownContentWriter getContentWriter() {
-        return contentWriter;
-    }
-
-    public static DomainMatcher getDomainMatcher() {
-        return domainMatcher;
-    }
-
     public static Crawler getCrawler() {
         return crawler;
     }
 
     public static void setCrawler(Crawler crawler) {
         EntryPoint.crawler = crawler;
-    }
-
-    public static void setMarkdownFileWriter(MarkdownFileWriter markdownFileWriter) {
-        EntryPoint.markdownFileWriter = markdownFileWriter;
     }
 
 }
