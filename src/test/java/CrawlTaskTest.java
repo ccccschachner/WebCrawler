@@ -3,8 +3,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -44,13 +43,13 @@ public class CrawlTaskTest {
     public void testRun() {
         doNothing().when(mockMarkdownFileWriter).writeHeader(anyString(), anyInt());
         doNothing().when(mockCrawler).crawl(anyString(), anyInt());
-        doNothing().when(mockCrawler).finishWritingAfterCrawling();
+        doNothing().when(crawlTask).finishWritingAfterCrawling();
 
         crawlTask.run();
 
         verify(mockMarkdownFileWriter).writeHeader(eq(TEST_URL), anyInt());
         verify(mockCrawler).crawl(eq(TEST_URL), eq(0));
-        verify(mockCrawler).finishWritingAfterCrawling();
+        verify(crawlTask).finishWritingAfterCrawling();
     }
 
     @Test
@@ -72,5 +71,11 @@ public class CrawlTaskTest {
         assertNotNull(crawlTask.getContentWriter());
         assertNotNull(crawlTask.getDomainMatcher());
         assertNotNull(crawlTask.getCrawler());
+    }
+
+    @Test
+    public void testFinishWritingAfterCrawling() {
+        crawlTask.finishWritingAfterCrawling();
+        verify(mockContentWriter).closeMarkDownContentWriter();
     }
 }

@@ -37,6 +37,8 @@ public class CrawlTask implements Runnable {
         crawler = new Crawler(EntryPoint.getDepth(), domainMatcher, contentWriter);
     }
 
+    public void finishWritingAfterCrawling(){contentWriter.closeMarkDownContentWriter();}
+
     public String getURL() {
         return url;
     }
@@ -76,14 +78,4 @@ public class CrawlTask implements Runnable {
     public void setMarkdownFileWriter(MarkdownFileWriter markdownFileWriter) {
         this.markdownFileWriter = markdownFileWriter;
     }
-
-
-
-    //TODO add ähnlichen Test
-    /*@Test
-    public void testFinishWritingAfterCrawling() {
-        crawler.finishWritingAfterCrawling();
-        verify(mockContentWriter).closeMarkDownContentWriter();
-    }*/
-    public void finishWritingAfterCrawling(){contentWriter.closeMarkDownContentWriter();}
 }
