@@ -209,6 +209,10 @@ public class EntryPoint {
         EntryPoint.filePath = filePath;
     }
 
+    public static void setFiles(List<String> files) {
+        EntryPoint.files = files;
+    }
+
     public static Crawler getCrawler() {
         return crawler;
     }
