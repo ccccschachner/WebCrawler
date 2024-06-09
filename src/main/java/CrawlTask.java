@@ -27,7 +27,7 @@ public class CrawlTask implements Runnable {
 
     private void crawlURL(String url) {
         crawler.crawl(url, 0);
-        crawler.finishWritingAfterCrawling();
+        finishWritingAfterCrawling();
     }
 
     private void initializeCrawlingProcess() {
@@ -37,4 +37,11 @@ public class CrawlTask implements Runnable {
         crawler = new Crawler(EntryPoint.getDepth(), domainMatcher, contentWriter);
     }
 
+    //TODO add ähnlichen Test
+    /*@Test
+    public void testFinishWritingAfterCrawling() {
+        crawler.finishWritingAfterCrawling();
+        verify(mockContentWriter).closeMarkDownContentWriter();
+    }*/
+    public void finishWritingAfterCrawling(){contentWriter.closeMarkDownContentWriter();}
 }
