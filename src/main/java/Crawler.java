@@ -4,8 +4,8 @@ import java.util.List;
 public class Crawler {
     private final int depth;
     private final List<String> visitedURLs;
-    private MarkdownContentWriter contentWriter;
-    private DomainMatcher domainMatcher;
+    private final MarkdownContentWriter contentWriter;
+    private final DomainMatcher domainMatcher;
 
     public Crawler(int depth,DomainMatcher domainMatcher, MarkdownContentWriter contentWriter){
         this.depth=depth;
@@ -46,12 +46,4 @@ public class Crawler {
     }
 
     public void finishWritingAfterCrawling(){contentWriter.closeMarkDownContentWriter();}
-
-    void addVisitedUrl(String url){
-        visitedURLs.add(url);
-    }
-
-    public List<String> getVisitedURLs() {
-        return visitedURLs;
-    }
 }
