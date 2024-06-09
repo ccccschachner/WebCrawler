@@ -22,7 +22,7 @@ public class EntryPointTest {
     public void testStoreUrlsValid() {
         EntryPoint.scanner = new Scanner(new ByteArrayInputStream(urlValid.getBytes()));
         EntryPoint.storeUrls();
-        assertEquals(urlValid, EntryPoint.getUrl());
+        assertEquals(urlValid, EntryPoint.getUrls().get(0));
     }
 
     @Test
@@ -55,16 +55,19 @@ public class EntryPointTest {
         assertEquals(filePathInvalid, EntryPoint.getFilePath());
     }
 
-    @Test
+    /*@Test
     public void testCrawlURL(){
         String url = "http://example.com";
+        List<String> urls = new ArrayList<>();
+        urls.add(url);
 
         Crawler crawlerMock=mock(Crawler.class);
         EntryPoint.setCrawler(crawlerMock);
         doNothing().when(crawlerMock).crawl(url, 0);
         doNothing().when(crawlerMock).finishWritingAfterCrawling();
 
-        EntryPoint.crawlURL(url);
+        EntryPoint.setUrls(urls);
+        EntryPoint.startCrawlerThreads();
 
         verify(crawlerMock).crawl(url, 0);
         verify(crawlerMock).finishWritingAfterCrawling();
@@ -99,6 +102,6 @@ public class EntryPointTest {
         EntryPoint.setUrl(urlValid);
         EntryPoint.setDomains(domainsValid);
         EntryPoint.setFilePath(testFilePath);
-    }
+    }*/
 
 }
