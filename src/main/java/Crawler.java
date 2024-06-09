@@ -20,8 +20,8 @@ public class Crawler {
             visitedURLs.add(url);
 
             contentWriter.writeContentOfPageToMarkdown(parser,url,currentDepth);
-            crawlChildLinks(parser,currentDepth);
             contentWriter.writeBrokenLinks(parser,currentDepth);
+            crawlChildLinks(parser,currentDepth);
         }
     }
 
@@ -33,17 +33,22 @@ public class Crawler {
             }
         }
     }
-
+    //tested
     boolean matchesDomain(String url) {
         return domainMatcher.matchesDomain(url);
     }
     Parser createParser(String url) {
         return new Parser(url);
     }
-
+    //tested
     boolean shouldContinueCrawling(String url, int currentDepth){
         return currentDepth<=depth && !visitedURLs.contains(url);
     }
-
-    public void finishWritingAfterCrawling(){contentWriter.closeMarkDownContentWriter();}
+    public List<String> getVisitedURLs() {
+        return visitedURLs;
+    }
+    //tested
+    public void addVisitedUrl(String url) {
+        visitedURLs.add(url);
+    }
 }

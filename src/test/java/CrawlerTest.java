@@ -1,11 +1,8 @@
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.mockito.InOrder;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -14,209 +11,145 @@ import static org.mockito.Mockito.*;
 public class CrawlerTest {
 
     private Crawler crawler;
-    private final String testFilePath = "src/test/CrawlerTest.md";
-    private final String testURL="https://example.com/page1";
+    private final String testURL="http://example.com";
+    private final String testChildLink="http://example.com/child";
     private final int testDepth=2;
-    private final List<String> testDomains=new ArrayList<>();
+    private MarkdownContentWriter mockContentWriter;
+    private DomainMatcher mockDomainMatcher;
+
+    private Parser mockParser_FirstIteration;
+    private Parser mockParser_SecondIteration;
 
     @BeforeEach
-    public void setUp(){
-        crawler=new Crawler(testURL,testDepth,testDomains,testFilePath);
+    public void setUp() {
+        mockContentWriter = mock(MarkdownContentWriter.class);
+        mockDomainMatcher = mock(DomainMatcher.class);
+        crawler = spy(new Crawler(testDepth, mockDomainMatcher, mockContentWriter));
     }
 
     @Test
-    public void testCrawl_NoMatchingDomain(){
-        crawler= Mockito.spy(new Crawler(testURL,testDepth,testDomains,testFilePath));
+    public void testCrawl_ShouldVisitUrlAndWriteContent() {
+        Parser mockParser = mockSingleParser();
 
-        MarkdownWriter mockMarkdownWriter=mockMarkdownWriter();
+        crawler.crawl(testURL, 1);
+
+        verifyContentWriterMethods_CalledOnce(mockParser);
+        verify(mockContentWriter, never()).closeMarkDownContentWriter();
+    }
+
+    @Test
+    public void testCrawl_ShouldNotRevisitVisitedUrl() {
+        Parser mockParser=mockSingleParser();
+
+        crawler.crawl(testURL, 1);
+        crawler.crawl(testURL, 1);
+
+        verifyContentWriterMethods_CalledOnce(mockParser);
+    }
+
+    private void verifyContentWriterMethods_CalledOnce(Parser mockParser){
+        verify(mockContentWriter, times(1)).writeContentOfPageToMarkdown(mockParser, testURL, 1);
+        verify(mockContentWriter, times(1)).writeBrokenLinks(mockParser, 1);
+    }
+
+    private Parser mockSingleParser(){
+        Parser mockParser = mock(Parser.class);
+        when(mockParser.getIntactUrls()).thenReturn(new String[]{testURL});
+        doReturn(mockParser).when(crawler).createParser(testURL);
+
+        return mockParser;
+    }
+
+    @Test
+    public void testCrawl_ShouldFollowChildLinks() {
         mockParser();
-        mockUnbrokenLink();
 
-        crawler.crawl(testURL, testDepth);
+        when(mockDomainMatcher.matchesDomain(testChildLink)).thenReturn(true);
 
-        verifyLinkAndHeadingsAreWrittenOnce(mockMarkdownWriter);
-        verifyBrokenLinkNeverWritten(mockMarkdownWriter);
-        verifyCrawlingOnce();
-        assertUrlIsMarkedAsVisited();
+        crawler.crawl(testURL, 1);
+
+        verifyOrderOfContentWriterCalls();
+    }
+
+    private void verifyOrderOfContentWriterCalls(){
+        InOrder inOrder = inOrder(mockContentWriter);
+        inOrder.verify(mockContentWriter).writeContentOfPageToMarkdown(mockParser_FirstIteration, testURL, 1);
+        inOrder.verify(mockContentWriter).writeBrokenLinks(mockParser_FirstIteration, 1);
+        inOrder.verify(mockContentWriter).writeContentOfPageToMarkdown(mockParser_SecondIteration, testChildLink, 2);
+        inOrder.verify(mockContentWriter).writeBrokenLinks(mockParser_SecondIteration, 2);
+    }
+
+    private void mockParser(){
+        mockParser_FirstIteration();
+        mockParser_SecondIteration();
+    }
+
+    private void mockParser_FirstIteration(){
+        mockParser_FirstIteration = mock(Parser.class);
+        when(mockParser_FirstIteration.getIntactUrls()).thenReturn(new String[]{testChildLink});
+        doReturn(mockParser_FirstIteration).when(crawler).createParser(testURL);
+    }
+
+    private void mockParser_SecondIteration(){
+        mockParser_SecondIteration = mock(Parser.class);
+        when(mockParser_SecondIteration.getIntactUrls()).thenReturn(new String[]{});
+        doReturn(mockParser_SecondIteration).when(crawler).createParser(testChildLink);
     }
 
     @Test
-    public void testCrawl_ValidUrl(){
-        crawler= Mockito.spy(new Crawler(testURL,testDepth,testDomains,testFilePath));
-
-        MarkdownWriter mockMarkdownWriter=mockMarkdownWriter();
-        mockParser();
-        mockUnbrokenLink();
-
-        addTestDomain();
-
-
-        crawler.crawl(testURL, testDepth);
-
-        verifyLinkAndHeadingsAreWrittenOnce(mockMarkdownWriter);
-        verifyBrokenLinkNeverWritten(mockMarkdownWriter);
-        verifyCrawlingTwice();
-        assertUrlIsMarkedAsVisited();
+    public void testShouldContinueCrawling_DepthLimit() {
+        assertFalse(crawler.shouldContinueCrawling(testURL, testDepth+1));
     }
 
     @Test
-    public void testCrawl_BrokenLink(){
-        crawler= Mockito.spy(new Crawler(testURL,testDepth,testDomains,testFilePath));
+    public void testShouldContinueCrawling_AlreadyVisited() {
+        crawler.crawl(testURL, testDepth-1);
 
-        MarkdownWriter mockMarkdownWriter=mockMarkdownWriter();
-        mockParser();
-        mockBrokenLink();
-        addTestDomain();
+        List<String> visitedUrls=crawler.getVisitedURLs();
 
-        crawler.crawl(testURL, testDepth);
-
-        verifyCrawlingOnce();
-        verifyBrokenLinkWrittenTwice(mockMarkdownWriter);
-        assertUrlIsMarkedAsVisited();
+        assertTrue(visitedUrls.contains(testURL));
+        assertFalse(crawler.shouldContinueCrawling(testURL, testDepth));
     }
 
     @Test
-    public void testWriteContentOfPageToMarkdown(){
-        crawler= Mockito.spy(new Crawler(testURL,testDepth,testDomains,testFilePath));
-        Parser mockParser=mockParser();
-
-        MarkdownWriter mockMarkdownWriter=mockMarkdownWriter();
-
-        crawler.writeContentOfPageToMarkdown(mockParser,testURL,testDepth);
-
-        verifyLinkAndHeadingsAreWrittenOnce(mockMarkdownWriter);
+    public void testShouldContinueCrawling_ValidConditions() {
+        assertTrue(crawler.shouldContinueCrawling(testURL, testDepth-1));
     }
 
+    @Test
+    public void testMatchesDomain_True() {
+        when(mockDomainMatcher.matchesDomain(testURL)).thenReturn(true);
+
+        boolean matchesDomain = crawler.matchesDomain(testURL);
+
+        assertTrue(matchesDomain);
+        verify(mockDomainMatcher).matchesDomain(testURL);
+    }
+
+    @Test
+    public void testMatchesDomain_False() {
+        when(mockDomainMatcher.matchesDomain(testURL)).thenReturn(false);
+
+        boolean matchesDomain = crawler.matchesDomain(testURL);
+
+        assertFalse(matchesDomain);
+        verify(mockDomainMatcher).matchesDomain(testURL);
+    }
 
     @Test
     public void testAddVisitedUrl(){
         crawler.addVisitedUrl(testURL);
+
         List<String> visitedUrls=crawler.getVisitedURLs();
+
         assertEquals(1, visitedUrls.size());
         assertEquals(testURL,visitedUrls.get(0));
-    }
-    @Test
-    public void testShouldCrawl_CurrentDepthSmallerDepth_UrlNotVisited(){
-        int currentDepth=1;
-        assertTrue(crawler.shouldCrawl(testURL,currentDepth));
-    }
-
-    @Test
-    public void testShouldCrawl_CurrentDepthSmallerDepth_UrlVisited(){
-        int currentDepth=1;
-        crawler.addVisitedUrl(testURL);
-        assertFalse(crawler.shouldCrawl(testURL,currentDepth));
-    }
-
-    @Test
-    public void testShouldCrawl_CurrentDepthGreaterDepth_UrlNotVisited(){
-        int currentDepth=3;
-        assertFalse(crawler.shouldCrawl(testURL,currentDepth));
-    }
-
-    @Test
-    public void testShouldCrawl_CurrentDepthGreaterDepth_UrlVisited(){
-        int currentDepth=3;
-        crawler.addVisitedUrl(testURL);
-        assertFalse(crawler.shouldCrawl(testURL,currentDepth));
-    }
-    @Test
-    public void testMatchesDomain_True(){
-        String domain="de.wikipedia.org";
-        testDomains.add(domain);
-        String url_MatchingDomain= "https://de.wikipedia.org/wiki/Wikipedia:Hauptseite";
-        assertTrue(crawler.matchesDomain(url_MatchingDomain));
-    }
-
-    @Test
-    public void testMatchesDomain_False(){
-        String domain="de.wikipedia.org";
-        testDomains.add(domain);
-        String url_NotMatchingDomain= "en.wikipedia.org/wiki/Main_Page";
-        assertFalse(crawler.matchesDomain(url_NotMatchingDomain));
-    }
-
-    @Test
-    public void testMatchesDomain_DomainIsNULL(){
-        String domain="de.wikipedia.org";
-        testDomains.add(domain);
-        assertFalse(crawler.matchesDomain(null));
-    }
-
-    @Test
-    public void testLinkIsBroken_True(){
-        String brokenLink="https://example.com/not_found";
-        assertTrue(crawler.linkIsBroken(brokenLink));
-    }
-
-    @Test
-    public void testLinkIsBroken_False(){
-        String notBrokenLink="https://www.wikipedia.org";
-        assertFalse(crawler.linkIsBroken(notBrokenLink));
-    }
-
-    @Test
-    void testFinishCrawling() {
-        MarkdownWriter mockMarkdownWriter = mockMarkdownWriter();
-
-        crawler.finishCrawling();
-
-        verify(mockMarkdownWriter).closeWriter();
-    }
-
-    private MarkdownWriter mockMarkdownWriter(){
-        MarkdownWriter mockMarkdownWriter = mock(MarkdownWriter.class);
-        crawler.setMarkdownWriter(mockMarkdownWriter);
-        doNothing().when(mockMarkdownWriter).writeLink(anyString(), anyInt());
-        doNothing().when(mockMarkdownWriter).writeHeadings(any(),anyInt());
-        doNothing().when(mockMarkdownWriter).writeBrokenLink(anyString(),anyInt());
-        return  mockMarkdownWriter;
-    }
-    private void verifyLinkAndHeadingsAreWrittenOnce(MarkdownWriter mockMarkdownWriter){
-        verify(mockMarkdownWriter, times(1)).writeLink(anyString(), eq(testDepth));
-        verify(mockMarkdownWriter,times(1)).writeHeadings(any(),eq(testDepth));
-    }
-    private void verifyBrokenLinkNeverWritten(MarkdownWriter mockMarkdownWriter){
-        verify(mockMarkdownWriter, never()).writeBrokenLink(anyString(), anyInt());
-    }
-    private void assertUrlIsMarkedAsVisited(){
-        assertTrue(crawler.getVisitedURLs().contains(testURL));
-    }
-    private void verifyCrawlingOnce(){
-        verify(crawler,times(1)).crawl(anyString(), anyInt());
-    }
-    private void verifyCrawlingTwice(){
-        verify(crawler,times(2)).crawl(anyString(), anyInt());
-    }
-    private void verifyBrokenLinkWrittenTwice(MarkdownWriter mockMarkdownWriter){
-        verify(mockMarkdownWriter, times(1)).writeBrokenLink(anyString(), eq(testDepth));
-    }
-    private void mockUnbrokenLink(){
-        when(crawler.linkIsBroken("https://example.com/page2")).thenReturn(false);
-    }
-    private void mockBrokenLink(){
-        when(crawler.linkIsBroken("https://example.com/page2")).thenReturn(true);
-    }
-
-    private Parser mockParser(){
-        Parser mockParser=mock(Parser.class);
-        Element mockLink = mock(Element.class);
-        Elements links = new Elements();
-        links.add(mockLink);
-
-        //Todo: adapt to changed parser class
-        //when(mockParser.getIntactUrls()).thenReturn(links);
-        when(mockLink.attr("abs:href")).thenReturn("https://example.com/page2");
-        doReturn(mockParser).when(crawler).createParser(anyString());
-        return mockParser;
-    }
-    private void addTestDomain(){
-        testDomains.add("example.com");
     }
 
     @AfterEach
     public void tearDown(){
+        this.mockContentWriter=null;
+        this.mockDomainMatcher=null;
         this.crawler=null;
     }
-
 }
