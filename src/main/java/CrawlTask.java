@@ -21,20 +21,62 @@ public class CrawlTask implements Runnable {
         System.out.println("Finished crawling " + url + ".");
     }
 
-    private void writeHeader(String url) {
+    public void writeHeader(String url) {
         markdownFileWriter.writeHeader(url, EntryPoint.getDepth());
     }
 
-    private void crawlURL(String url) {
+    public void crawlURL(String url) {
         crawler.crawl(url, 0);
         crawler.finishWritingAfterCrawling();
     }
 
-    private void initializeCrawlingProcess() {
+    public void initializeCrawlingProcess() {
         markdownFileWriter = new MarkdownFileWriter(filePath);
         contentWriter = new MarkdownContentWriter(markdownFileWriter);
         domainMatcher = new DomainMatcher(EntryPoint.getDomains());
         crawler = new Crawler(EntryPoint.getDepth(), domainMatcher, contentWriter);
     }
+
+    public String getURL() {
+        return url;
+    }
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public MarkdownFileWriter getMarkdownFileWriter() {
+        return markdownFileWriter;
+    }
+
+    public MarkdownContentWriter getContentWriter() {
+        return contentWriter;
+    }
+
+    public Crawler getCrawler() {
+        return crawler;
+    }
+
+    public DomainMatcher getDomainMatcher() {
+        return domainMatcher;
+    }
+
+    public void setCrawler(Crawler crawler) {
+        this.crawler = crawler;
+    }
+
+    public void setDomainMatcher(DomainMatcher domainMatcher) {
+        this.domainMatcher = domainMatcher;
+    }
+
+    public void setContentWriter(MarkdownContentWriter contentWriter) {
+        this.contentWriter = contentWriter;
+    }
+
+    public void setMarkdownFileWriter(MarkdownFileWriter markdownFileWriter) {
+        this.markdownFileWriter = markdownFileWriter;
+    }
+
+
 
 }

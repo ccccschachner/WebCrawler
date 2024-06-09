@@ -35,7 +35,7 @@ public class ParserTest {
 
         String[] links = parser.getIntactUrls();
         assertNotNull(links);
-        assertFalse(links.length == 0);
+        assertNotEquals(0, links.length);
     }
 
     @Test
