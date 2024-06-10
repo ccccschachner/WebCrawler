@@ -33,21 +33,18 @@ public class Crawler {
             }
         }
     }
-    //tested
     boolean matchesDomain(String url) {
         return domainMatcher.matchesDomain(url);
     }
     Parser createParser(String url) {
         return new Parser(url);
     }
-    //tested
     boolean shouldContinueCrawling(String url, int currentDepth){
         return currentDepth<=depth && !visitedURLs.contains(url);
     }
     public List<String> getVisitedURLs() {
         return visitedURLs;
     }
-    //tested
     public void addVisitedUrl(String url) {
         visitedURLs.add(url);
     }
