@@ -26,7 +26,6 @@ public class EntryPoint {
         startCrawlerThreads();
         joinThreads();
         createFinalMarkdown();
-        closeScanner();
         printUserInput();
     }
 
@@ -166,9 +165,13 @@ public class EntryPoint {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 System.err.println("Main thread was interrupted: " + e.getMessage());
-            } //TODO finally-Klausel
+            }
+            finally {
+                closeScanner();
+            }
         }
     }
+
 
 
     public static List<String> getUrls() {
@@ -207,7 +210,6 @@ public class EntryPoint {
     public static void setFiles(List<String> files) {
         EntryPoint.files = files;
     }
-
 
     public static List<Thread> getThreads() {
         return threads;

@@ -3,6 +3,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,8 @@ public class EntryPointTest {
     @AfterEach
     public void tearDownOut() {
         System.setOut(originalOut);
+        EntryPoint.threads.clear();
+        EntryPoint.setFiles(new ArrayList<>());
     }
 
 
@@ -137,7 +140,6 @@ public class EntryPointTest {
         assertTrue(outContent.toString().contains(filePathValid));
         assertTrue(outContent.toString().contains(urlValid));
         assertTrue(outContent.toString().contains(domainValid));
-
     }
 
 }
