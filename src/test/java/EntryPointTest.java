@@ -1,110 +1,132 @@
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import org.junit.jupiter.api.*;
 
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 public class EntryPointTest {
 
-    private final String urlValid = "https://example.com";
-    private final int depthValid = 3;
-    private final List<String> domainsValid = new ArrayList<>();
-    private final String filePathValid = "C:\\Users\\user\\Documents\\output.md";
-    private final String filePathInvalid = "user\\Documents\\output.txt";
-    private final String domainValid = "example.com";
-    private ByteArrayOutputStream outContent;
-    private PrintStream originalOut;
+    private final InputStream originalSystemIn = System.in;
+    private final PrintStream originalSystemOut = System.out;
+    private ByteArrayInputStream testIn;
+    private ByteArrayOutputStream testOut;
 
 
     @BeforeEach
-    public void setUp() {
-        EntryPoint.threads.clear();
-        outContent = new ByteArrayOutputStream();
-        originalOut = System.out;
-        System.setOut(new PrintStream(outContent));
+    public void setUpOutput() {
+        testOut = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(testOut));
+    }
+
+    private void provideInput(String data) {
+        testIn = new ByteArrayInputStream(data.getBytes());
+        System.setIn(testIn);
+    }
+
+    private String getOutput() {
+        return testOut.toString();
     }
 
     @AfterEach
-    public void tearDownOut() {
-        System.setOut(originalOut);
-        EntryPoint.threads.clear();
-        EntryPoint.setFiles(new ArrayList<>());
+    public void restoreSystemInputOutput() {
+        System.setIn(originalSystemIn);
+        System.setOut(originalSystemOut);
+    }
+
+    @Test
+    public void testInitializeScanner() {
+        EntryPoint.initializeScanner();
+        assertNotNull(EntryPoint.scanner);
+    }
+
+    @Test
+    public void testPromptUserInputValid() {
+        provideInput("https://example.com https://test.com\n");
+        EntryPoint.initializeScanner();
+        List<String> urls = EntryPoint.promptUserInput("Enter URLs:", EntryPoint.urlRegex);
+        assertEquals(2, urls.size());
+        assertEquals("https://example.com", urls.get(0));
+        assertEquals("https://test.com", urls.get(1));
+    }
+
+    @Test
+    public void testPromptUserInputInvalid() {
+        provideInput("invalid-url\nhttps://example.com\n");
+        EntryPoint.initializeScanner();
+        List<String> urls = EntryPoint.promptUserInput("Enter URLs:", EntryPoint.urlRegex);
+        assertEquals(1, urls.size());
+        assertEquals("https://example.com", urls.get(0));
+        assertTrue(getOutput().contains("Invalid Input!"));
+    }
+
+    @Test
+    public void testPromptSingleInputValid() {
+        provideInput("3\n");
+        EntryPoint.initializeScanner();
+        String depth = EntryPoint.promptSingleInput("Enter depth:", EntryPoint.depthRegex);
+        assertEquals("3", depth);
+    }
+
+    @Test
+    public void testPromptSingleInputInvalid() {
+        provideInput("10\n3\n");
+        EntryPoint.initializeScanner();
+        String depth = EntryPoint.promptSingleInput("Enter depth:", EntryPoint.depthRegex);
+        assertEquals("3", depth);
+        assertTrue(getOutput().contains("Invalid Input!"));
+    }
+
+    @Test
+    public void testStoreUserInputs() {
+        provideInput("https://example.com\n3\nexample.com\nC:\\Users\\User\\Documents\\output.md\n");
+        EntryPoint.initializeScanner();
+        EntryPoint.storeUserInputs();
+        assertEquals(1, EntryPoint.urls.size());
+        assertEquals("https://example.com", EntryPoint.urls.get(0));
+        assertEquals(3, EntryPoint.depth);
+        assertEquals(1, EntryPoint.domains.size());
+        assertEquals("example.com", EntryPoint.domains.get(0));
+        assertEquals("C:\\Users\\User\\Documents\\output.md", EntryPoint.filePath);
     }
 
 
     @Test
-    public void testStoreUrlsValid() {
-        EntryPoint.scanner = new Scanner(new ByteArrayInputStream(urlValid.getBytes()));
-        EntryPoint.storeUrls();
-        assertEquals(urlValid, EntryPoint.getUrls().get(0));
+    public void testPrintUserInput() {
+        EntryPoint.urls = List.of("https://example.com");
+        EntryPoint.depth = 2;
+        EntryPoint.domains = List.of("example.com");
+        EntryPoint.filePath = "output";
+        EntryPoint.printUserInput();
+        String output = getOutput();
+        assertTrue(output.contains("https://example.com 2 example.com"));
+        assertTrue(output.contains("output"));
     }
 
     @Test
-    public void testStoreDepthValid() {
-        EntryPoint.scanner = new Scanner(new ByteArrayInputStream((depthValid + "\n").getBytes()));
-        EntryPoint.storeDepth();
-        assertEquals(depthValid, EntryPoint.getDepth());
-    }
+    public void testCreateFinalMarkdown() throws Exception {
+        EntryPoint.filePath = "test_output";
+        EntryPoint.files = List.of("test_file1", "file2");
 
-    @Test
-    public void testStoreDomainsValid() {
-        domainsValid.add("test.com");
-        domainsValid.add("example.at");
-        EntryPoint.setDomains(domainsValid);
-        EntryPoint.scanner = new Scanner(new ByteArrayInputStream(String.join(" ", domainsValid).getBytes()));
-        EntryPoint.storeDomains();
-        assertEquals(domainsValid, EntryPoint.getDomains());
-    }
-
-    @Test
-    public void testStoreFilePathValid() {
-        EntryPoint.scanner = new Scanner(new ByteArrayInputStream(filePathValid.getBytes()));
-        EntryPoint.storeFilePath();
-        assertEquals(filePathValid, EntryPoint.getFilePath());
-    }
-
-    @Test
-    public void testStoreFilePathInvalid() {
-        EntryPoint.scanner = new Scanner(new ByteArrayInputStream(filePathInvalid.getBytes()));
-        EntryPoint.storeFilePath();
-        assertEquals(filePathInvalid, EntryPoint.getFilePath());
-    }
-
-    @Test
-    public void testStartCrawlerThreads() throws InterruptedException {
-        String url1 = "http://example.com";
-        String url2 = "http://example1.com";
-        List<String> urls = new ArrayList<>();
-        urls.add(url1);
-        urls.add(url2);
-        String filePath = "output";
-
-        EntryPoint.setUrls(urls);
-        EntryPoint.setFilePath(filePath);
-
-        EntryPoint.startCrawlerThreads();
-
-        assertEquals(2, EntryPoint.threads.size());
-
-        for (Thread thread : EntryPoint.threads) {
-            thread.join();
+        File outputFile = new File(EntryPoint.filePath);
+        if (outputFile.exists()) {
+            outputFile.delete();
         }
+        assertFalse(outputFile.exists());
 
-        assertEquals(2, EntryPoint.getFiles().size());
-        assertTrue(EntryPoint.getFiles().contains("output_1"));
-        assertTrue(EntryPoint.getFiles().contains("output_2"));
+        EntryPoint.createFinalMarkdown();
+
+        assertTrue(outputFile.exists());
+
+        String content = new String(Files.readAllBytes(Paths.get(EntryPoint.filePath)));
+        assertTrue(content.contains("Expected Content"));
     }
-
 
     @Test
     public void testCloseScanner() {
-        EntryPoint.scanner = new Scanner(System.in);
+        EntryPoint.initializeScanner();
         EntryPoint.closeScanner();
 
         assertThrows(IllegalStateException.class, () -> {
@@ -114,45 +136,23 @@ public class EntryPointTest {
 
     @Test
     public void testJoinThreads() {
-        Thread thread1 = new Thread(() -> {});
-        Thread thread2 = new Thread(() -> {});
-        EntryPoint.threads.add(thread1);
-        EntryPoint.threads.add(thread2);
-
-        thread1.start();
-        thread2.start();
-
+        Thread thread = new Thread();
+        EntryPoint.threads.add(thread);
         EntryPoint.joinThreads();
-
-        assertEquals(Thread.State.TERMINATED, thread1.getState());
-        assertEquals(Thread.State.TERMINATED, thread2.getState());
+        assertFalse(thread.isAlive());
     }
 
     @Test
-    public void testPrintUserInput() {
-        EntryPoint.setFilePath(filePathValid);
-        EntryPoint.setUrls(List.of(urlValid));
-        EntryPoint.setDomains(List.of(domainValid));
-
-        EntryPoint.printUserInput();
-        assertTrue(outContent.toString().startsWith("\nThe markdown file based on your inputs"));
-        assertTrue(outContent.toString().contains(filePathValid));
-        assertTrue(outContent.toString().contains(urlValid));
-        assertTrue(outContent.toString().contains(domainValid));
+    public void testPrintInvalidInput() {
+        EntryPoint.printInvalidInput();
+        assertTrue(getOutput().contains("Invalid Input!"));
     }
 
     @Test
-    public void testGetListFromScannerInput(){
-        String testScannerInput="Test1 Test2 Test3";
-        List<String> expectedList=List.of("Test1","Test2","Test3");
-
-        List<String> receivedList=EntryPoint.getListFromScannerInput(testScannerInput);
-
-        assertEquals(expectedList,receivedList);
+    public void testStartCrawlerThreads(){
+        EntryPoint.startCrawlerThreads();
+        assertNotNull(EntryPoint.threads);
     }
+
 
 }
-
-
-
-

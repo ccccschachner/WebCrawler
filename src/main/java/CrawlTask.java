@@ -1,3 +1,7 @@
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.util.List;
 
 public class CrawlTask implements Runnable {
@@ -25,6 +29,7 @@ public class CrawlTask implements Runnable {
         System.out.println("Crawling " + url + " ...");
         crawlURL(url);
         System.out.println("Finished crawling " + url + ".");
+
     }
 
     public void writeHeader(String url) {
