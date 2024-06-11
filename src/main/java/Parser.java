@@ -17,8 +17,8 @@ public class Parser {
     private Document document;
     private String[] headings;
     private Elements allAnchors;
-    private List<Element> intactAnchors = new ArrayList<>();
-    private List<Element> brokenAnchors = new ArrayList<>();
+    private final List<Element> intactAnchors = new ArrayList<>();
+    private final List<Element> brokenAnchors = new ArrayList<>();
     private String[] intactUrls;
     private String[] brokenUrls;
 
@@ -29,12 +29,14 @@ public class Parser {
 
     private void parse() {
         createDocument();
-        storeHeadings();
-        storeAllAnchors();
-        storeUrls();
+        if (document != null) {
+            storeHeadings();
+            storeAllAnchors();
+            storeUrls();
+        }
     }
 
-    public void createDocument() {
+    private void createDocument() {
         try {
             document = Jsoup.connect(url).get();
             documentTitle = document.title();
@@ -43,18 +45,18 @@ public class Parser {
         }
     }
 
-    public void storeHeadings() {
+    private void storeHeadings() {
         Elements headingsElements = document.select("h1, h2, h3, h4, h5, h6");
         headings = headingsElements.stream()
                 .map(element -> element.tagName() + ": " + element.text())
                 .toArray(String[]::new);
     }
 
-    public void storeAllAnchors() {
+    private void storeAllAnchors() {
         allAnchors = document.select("a");
     }
 
-    public void storeUrls() {
+    private void storeUrls() {
         ExecutorService executor = Executors.newFixedThreadPool(10);
         List<Future<?>> futures = new ArrayList<>();
 
@@ -76,13 +78,13 @@ public class Parser {
         storeBrokenUrls();
     }
 
-    public void storeIntactUrls(){
+    private void storeIntactUrls() {
         intactUrls = intactAnchors.stream()
                 .map(anchor -> anchor.attr("abs:href"))
                 .toArray(String[]::new);
     }
 
-    public void storeBrokenUrls(){
+    private void storeBrokenUrls() {
         brokenUrls = brokenAnchors.stream()
                 .map(anchor -> anchor.attr("abs:href"))
                 .toArray(String[]::new);
@@ -106,28 +108,24 @@ public class Parser {
 
     private boolean hasValidHref(Element link) {
         String href = link.attr("abs:href");
-        return !href.isEmpty();
+        return !href.isEmpty() && (href.startsWith("http://") || href.startsWith("https://"));
     }
 
-    public void sortAnchors(Element link) {
+    private void sortAnchors(Element link) {
         if (hasValidHref(link)) {
-            String href = link.attr("abs:href");
-            if (href.startsWith("http://") || href.startsWith("https://")) {
-                try {
-                    Jsoup.connect(href)
-                            .method(Connection.Method.HEAD)
-                            .timeout(3000)
-                            .execute();
-                    synchronized (intactAnchors) {
-                        intactAnchors.add(link);
-                    }
-                } catch (IOException e) {
-                    synchronized (brokenAnchors) {
-                        brokenAnchors.add(link);
-                    }
+            try {
+                Jsoup.connect(link.attr("abs:href"))
+                        .method(Connection.Method.HEAD)
+                        .timeout(3000)
+                        .execute();
+                synchronized (intactAnchors) {
+                    intactAnchors.add(link);
+                }
+            } catch (IOException e) {
+                synchronized (brokenAnchors) {
+                    brokenAnchors.add(link);
                 }
             }
         }
     }
-
 }

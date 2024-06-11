@@ -6,13 +6,12 @@ public class EntryPoint {
     private static List<String> urls = new ArrayList<>();
     private static List<String> domains = new ArrayList<>();
     private static List<String> files = new ArrayList<>();
-    private static List<Thread> threads = new ArrayList<>();
+    protected static List<Thread> threads = new ArrayList<>();
 
     private static int depth;
     private static String filePath;
-    private static Crawler crawler;
-    private static MarkdownCombiner markdownCombiner;
-    public static Scanner scanner;
+    protected static MarkdownCombiner markdownCombiner;
+    protected static Scanner scanner;
 
     private static final String urlRegex = "^(https?://)?([a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}(\\/[a-zA-Z0-9-._?&=]*)?$";
     private static final String depthRegex = "[1-5]";
@@ -25,7 +24,9 @@ public class EntryPoint {
         initializeScanner();
         storeUserInputs();
         startCrawlerThreads();
-        closeProgram();
+        joinThreads();
+        createFinalMarkdown();
+        printUserInput();
     }
 
     public static void storeUserInputs() {
@@ -114,7 +115,7 @@ public class EntryPoint {
         int threadCounter = 1;
 
         for (String url : urls) {
-            String output = filePath+"_"+threadCounter;
+            String output = filePath + "_" + threadCounter;
             files.add(output);
 
             Thread thread = new Thread(new CrawlTask(url, output,depth,domains));
@@ -157,27 +158,27 @@ public class EntryPoint {
         scanner.close();
     }
 
-    public static void closeProgram() {
+    public static void joinThreads() {
         for (Thread thread : threads) {
             try {
                 thread.join();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 System.err.println("Main thread was interrupted: " + e.getMessage());
-            } //TODO finally-Klausel
+            }
+            finally {
+                closeScanner();
+            }
         }
-
-        createFinalMarkdown();
-        closeScanner();
-        printUserInput();
     }
+
 
 
     public static List<String> getUrls() {
         return urls;
     }
 
-    public static List<String> getFiles(){
+    public static List<String> getFiles() {
         return files;
     }
 
@@ -197,28 +198,17 @@ public class EntryPoint {
         EntryPoint.urls = urls;
     }
 
-    public static void setDepth(int depth) {
-        EntryPoint.depth = depth;
-    }
-
-    public static void setDomains(List<String> domains) {
-        EntryPoint.domains = domains;
-    }
 
     public static void setFilePath(String filePath) {
         EntryPoint.filePath = filePath;
     }
 
+    public static void setDomains(List<String> domains){
+        EntryPoint.domains = domains;
+    }
+
     public static void setFiles(List<String> files) {
         EntryPoint.files = files;
-    }
-
-    public static Crawler getCrawler() {
-        return crawler;
-    }
-
-    public static void setCrawler(Crawler crawler) {
-        EntryPoint.crawler = crawler;
     }
 
     public static List<Thread> getThreads() {
