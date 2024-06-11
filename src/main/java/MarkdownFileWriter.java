@@ -28,7 +28,9 @@ public class MarkdownFileWriter {
 
     void writeHeadings(String[] headings, int depth){
         for(String heading:headings) {
-            String lineToWrite = addHeadingMarking(heading.toLowerCase().substring(0,2)) + " "+addDepthMarking(depth) +heading.substring(4)+ "\n";
+            String tag=heading.toLowerCase().substring(0,2);
+            String headingText=heading.substring(4);
+            String lineToWrite = addHeadingMarking(tag) + " "+addDepthMarking(depth) +headingText+ "\n";
             writeLine(lineToWrite);
         }
         writeLine("\n");
