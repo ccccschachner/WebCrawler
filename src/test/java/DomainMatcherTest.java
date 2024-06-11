@@ -36,6 +36,7 @@ public class DomainMatcherTest {
     @ParameterizedTest
     @MethodSource("validUrls")
     public void testMatchesDomainWithValidDomains(String url) {
+
         assertTrue(domainMatcher.matchesDomain(url));
     }
 
@@ -49,17 +50,20 @@ public class DomainMatcherTest {
     @ParameterizedTest
     @MethodSource("invalidUrls")
     public void testMatchesDomainWithInvalidDomains(String url) {
+
         assertFalse(domainMatcher.matchesDomain(url));
     }
 
 
     @Test
     public void testMatchesDomainWithInvalidURL() {
-        assertFalse(domainMatcher.matchesDomain("invalid-url"));
+        String invalidURL="invalid-url";
+        assertFalse(domainMatcher.matchesDomain(invalidURL));
     }
 
     @Test
     public void testMatchesDomainWithNullURL() {
+
         assertFalse(domainMatcher.matchesDomain(null));
     }
 
