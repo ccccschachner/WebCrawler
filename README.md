@@ -17,7 +17,7 @@ This project is a simple web crawler built in Java. It allows you to scrape two 
 - clone project
 - open in IntelliJ IDE
 - navigate to src\main\java
-- run Main.main() via run button
+- run EntryPoint.main() via run button
 - further instructions appear in the terminal
 
 ## Test

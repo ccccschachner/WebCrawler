@@ -1,14 +1,9 @@
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class MarkdownWriter {
+public class MarkdownFileWriter {
     private FileWriter writer;
-
-
-    public MarkdownWriter(String filePath){
+    public MarkdownFileWriter(String filePath){
         initializeWriter(filePath);
     }
     void initializeWriter(String filePath){
@@ -31,9 +26,9 @@ public class MarkdownWriter {
         writeLine(lineToWrite);
     }
 
-    void writeHeadings(Elements headings, int depth){
-        for(Element heading:headings) {
-            String lineToWrite = addHeadingMarking(heading.tagName().toLowerCase()) + " "+addDepthMarking(depth) +heading.text()+ "\n";
+    void writeHeadings(String[] headings, int depth){
+        for(String heading:headings) {
+            String lineToWrite = addHeadingMarking(heading.toLowerCase().substring(0,2)) + " "+addDepthMarking(depth) +heading.substring(4)+ "\n";
             writeLine(lineToWrite);
         }
         writeLine("\n");
@@ -64,6 +59,12 @@ public class MarkdownWriter {
             writer.write(lineToWrite);
         } catch (IOException e) {
             System.out.println("Error writing Markdown file: " + e.getMessage());
+        } finally {
+            try {
+                writer.flush();
+            } catch (IOException e) {
+                System.out.println("Error flushing Markdown file: " + e.getMessage());
+            }
         }
     }
 
@@ -76,7 +77,7 @@ public class MarkdownWriter {
         try {
             writer.close();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.out.println("Error closing MarkdownWriter: "+e.getMessage());
         }
     }
     public FileWriter getWriter() {
