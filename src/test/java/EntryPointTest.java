@@ -1,21 +1,39 @@
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
+import static org.junit.jupiter.api.Assertions.*;
 public class EntryPointTest {
 
     private final String urlValid = "https://example.com";
     private final int depthValid = 3;
     private final List<String> domainsValid = new ArrayList<>();
-    private final String filePathValid="C:\\Users\\user\\Documents\\output.md";
-    private final String filePathInvalid="user\\Documents\\output.txt";
-    private final String testFilePath="src/test/EntryPointTest.md";
+    private final String filePathValid = "C:\\Users\\user\\Documents\\output.md";
+    private final String filePathInvalid = "user\\Documents\\output.txt";
+    private final String domainValid = "example.com";
+    private ByteArrayOutputStream outContent;
+    private PrintStream originalOut;
+
+
+    @BeforeEach
+    public void setUp() {
+        EntryPoint.threads.clear();
+        outContent = new ByteArrayOutputStream();
+        originalOut = System.out;
+        System.setOut(new PrintStream(outContent));
+    }
+
+    @AfterEach
+    public void tearDownOut() {
+        System.setOut(originalOut);
+    }
 
 
     @Test
@@ -36,6 +54,7 @@ public class EntryPointTest {
     public void testStoreDomainsValid() {
         domainsValid.add("test.com");
         domainsValid.add("example.at");
+        EntryPoint.setDomains(domainsValid);
         EntryPoint.scanner = new Scanner(new ByteArrayInputStream(String.join(" ", domainsValid).getBytes()));
         EntryPoint.storeDomains();
         assertEquals(domainsValid, EntryPoint.getDomains());
@@ -55,53 +74,74 @@ public class EntryPointTest {
         assertEquals(filePathInvalid, EntryPoint.getFilePath());
     }
 
-    /*@Test
-    public void testCrawlURL(){
-        String url = "http://example.com";
+    @Test
+    public void testStartCrawlerThreads() throws InterruptedException {
+        String url1 = "http://example.com";
+        String url2 = "http://example1.com";
         List<String> urls = new ArrayList<>();
-        urls.add(url);
-
-        Crawler crawlerMock=mock(Crawler.class);
-        EntryPoint.setCrawler(crawlerMock);
-        doNothing().when(crawlerMock).crawl(url, 0);
-        doNothing().when(crawlerMock).finishWritingAfterCrawling();
+        urls.add(url1);
+        urls.add(url2);
+        String filePath = "output";
 
         EntryPoint.setUrls(urls);
+        EntryPoint.setFilePath(filePath);
+
         EntryPoint.startCrawlerThreads();
 
-        verify(crawlerMock).crawl(url, 0);
-        verify(crawlerMock).finishWritingAfterCrawling();
+        assertEquals(2, EntryPoint.threads.size());
+
+        for (Thread thread : EntryPoint.threads) {
+            thread.join();
+        }
+
+        assertEquals(2, EntryPoint.getFiles().size());
+        assertTrue(EntryPoint.getFiles().contains("output_1"));
+        assertTrue(EntryPoint.getFiles().contains("output_2"));
+    }
+
+
+    @Test
+    public void testCloseScanner() {
+        EntryPoint.scanner = new Scanner(System.in);
+        EntryPoint.closeScanner();
+
+        assertThrows(IllegalStateException.class, () -> {
+            EntryPoint.scanner.next();
+        });
     }
 
     @Test
-    public void testInitializeCrawlingProcess(){
-        setUpTestValuesForEntryPoint();
+    public void testJoinThreads() {
+        Thread thread1 = new Thread(() -> {});
+        Thread thread2 = new Thread(() -> {});
+        EntryPoint.threads.add(thread1);
+        EntryPoint.threads.add(thread2);
 
-        EntryPoint.initializeCrawlingProcess();
+        thread1.start();
+        thread2.start();
 
-        assertNotNull(EntryPoint.getMarkdownFileWriter());
-        assertNotNull(EntryPoint.getContentWriter());
-        assertNotNull(EntryPoint.getDomainMatcher());
-        assertNotNull(EntryPoint.getCrawler());
+        EntryPoint.joinThreads();
+
+        assertEquals(Thread.State.TERMINATED, thread1.getState());
+        assertEquals(Thread.State.TERMINATED, thread2.getState());
     }
 
     @Test
-    public void testWriteHeader(){
-        MarkdownFileWriter markdownFileWriterMock=mock(MarkdownFileWriter.class);
-        EntryPoint.setMarkdownFileWriter(markdownFileWriterMock);
+    public void testPrintUserInput() {
+        EntryPoint.setFilePath(filePathValid);
+        EntryPoint.setUrls(List.of(urlValid));
+        EntryPoint.setDomains(List.of(domainValid));
 
-        setUpTestValuesForEntryPoint();
+        EntryPoint.printUserInput();
+        assertTrue(outContent.toString().startsWith("\nThe markdown file based on your inputs"));
+        assertTrue(outContent.toString().contains(filePathValid));
+        assertTrue(outContent.toString().contains(urlValid));
+        assertTrue(outContent.toString().contains(domainValid));
 
-        EntryPoint.writeHeader();
-
-        verify(markdownFileWriterMock, times(1)).writeHeader(urlValid,depthValid);
     }
-
-    private void setUpTestValuesForEntryPoint(){
-        EntryPoint.setDepth(depthValid);
-        EntryPoint.setUrl(urlValid);
-        EntryPoint.setDomains(domainsValid);
-        EntryPoint.setFilePath(testFilePath);
-    }*/
 
 }
+
+
+
+
