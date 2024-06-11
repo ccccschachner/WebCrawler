@@ -3,22 +3,22 @@ import java.util.List;
 import java.util.Scanner;
 
 public class EntryPoint {
-    private static List<String> urls = new ArrayList<>();
-    private static List<String> domains = new ArrayList<>();
-    private static List<String> files = new ArrayList<>();
+    protected static List<String> urls = new ArrayList<>();
+    protected static List<String> domains = new ArrayList<>();
+    protected static List<String> files = new ArrayList<>();
     protected static List<Thread> threads = new ArrayList<>();
 
-    private static int depth;
-    private static String filePath;
+    protected static int depth;
+    protected static String filePath;
     protected static MarkdownCombiner markdownCombiner;
     protected static Scanner scanner;
 
-    private static final String urlRegex = "^(https?://)?([a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}(\\/[a-zA-Z0-9-._?&=]*)?$";
-    private static final String depthRegex = "[1-5]";
+    static final String urlRegex = "^(https?://)?([a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}(\\/[a-zA-Z0-9-._?&=]*)?$";
+    static final String depthRegex = "[1-5]";
     private static final String domainRegex = "^(?!.*\\s)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$";
     private static final String filePathRegex = "^(.*/)?(?:$|(.+?)(?:(\\.[^.]*$)|$))";
 
-    private static final String urlsPrompt = "Please enter URLs you want to crawl, separated by a space (e.g. https://example.com):"
+    private static final String urlsPrompt = "Please enter URLs you want to crawl, separated by a space (e.g. https://example.com):";
     private static final String depthPrompt = "Please enter the depth of websites to crawl (1-5):";
     private static final String domainsPrompt = "Please enter domains to be crawled, separated by a space:";
     private static final String filePathPrompt = "Please enter the file path where you want to store your markdown:\n(format C:\\Users\\Benutzername\\Documents\\markdown\\output.md)";
@@ -112,5 +112,9 @@ public class EntryPoint {
 
     public static void printInvalidInput() {
         System.out.println("Invalid Input!");
+    }
+
+    public static void setFiles(List<String> files) {
+        EntryPoint.files = files;
     }
 }

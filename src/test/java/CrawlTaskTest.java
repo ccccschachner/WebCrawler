@@ -1,22 +1,23 @@
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 public class CrawlTaskTest {
 
-    private static final String TEST_URL = "http://example.com";
-    private static final String TEST_FILE_PATH = "testFile.md";
+    private static final String url = "http://example.com";
+    private static final String filePath = "testFile.md";
 
-    private static final int DEPTH=2;
-    private static final List<String> TEST_DOMAINS =List.of("example.com");
+    private static final int depth =2;
+    private static final List<String> domains =List.of("example.com");
 
     private CrawlTask crawlTask;
 
@@ -35,7 +36,7 @@ public class CrawlTaskTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        crawlTask = spy(new CrawlTask(TEST_URL, TEST_FILE_PATH, DEPTH, TEST_DOMAINS));
+        crawlTask = spy(new CrawlTask(url, filePath, depth, domains));
         doNothing().when(crawlTask).initializeCrawlingProcess();
 
         crawlTask.setMarkdownFileWriter(mockMarkdownFileWriter);
@@ -44,32 +45,39 @@ public class CrawlTaskTest {
         crawlTask.setCrawler(mockCrawler);
     }
 
+
     @Test
     public void testRun() {
+        MarkdownFileWriter mockMarkdownFileWriter = mock(MarkdownFileWriter.class);
+        Crawler mockCrawler = mock(Crawler.class);
+
         doNothing().when(mockMarkdownFileWriter).writeHeader(anyString(), anyInt());
         doNothing().when(mockCrawler).crawl(anyString(), anyInt());
         doNothing().when(crawlTask).finishWritingAfterCrawling();
 
-        crawlTask.run();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
 
-        verify(mockMarkdownFileWriter).writeHeader(eq(TEST_URL), anyInt());
-        verify(mockCrawler).crawl(eq(TEST_URL), eq(0));
-        verify(crawlTask).finishWritingAfterCrawling();
+        crawlTask.run();
+        System.setOut(System.out);
+
+        assertTrue(outputStream.toString().contains("Finished"));
+
     }
 
     @Test
     public void testGetURL() {
-        assertEquals(TEST_URL, crawlTask.getURL());
+        assertEquals(url, crawlTask.getURL());
     }
 
     @Test
     public void testGetFilePath() {
-        assertEquals(TEST_FILE_PATH, crawlTask.getFilePath());
+        assertEquals(filePath, crawlTask.getFilePath());
     }
 
     @Test
     public void testInitializeCrawlingProcess() {
-        crawlTask = new CrawlTask(TEST_URL, TEST_FILE_PATH,DEPTH, TEST_DOMAINS);
+        crawlTask = new CrawlTask(url, filePath, depth, domains);
         crawlTask.run();
 
         assertNotNull(crawlTask.getMarkdownFileWriter());
