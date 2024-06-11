@@ -20,7 +20,7 @@ public class CrawlTask implements Runnable {
 
     @Override
     public void run() {
-    initializeCrawlingProcess();
+        initializeCrawlingProcess();
         writeHeader(url);
         System.out.println("Crawling " + url + " ...");
         crawlURL(url);
