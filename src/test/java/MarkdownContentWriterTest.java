@@ -17,26 +17,52 @@ public class MarkdownContentWriterTest {
 
     @Test
     public void testWriteBrokenLinks() {
-        Parser parser = mock(Parser.class);
-        when(parser.getBrokenUrls()).thenReturn(new String[]{"http://example.com/broken", "http://test.org/error"});
+        String[] brokenLinks={"http://example.com/broken", "http://test.org/error"};
+        int depth=1;
 
-        markdownContentWriter.writeBrokenLinks(parser, 1);
+        Parser parser=mockParser_getBrokenLinks(brokenLinks);
 
-        verify(markdownFileWriter).writeBrokenLink("http://example.com/broken", 1);
-        verify(markdownFileWriter).writeBrokenLink("http://test.org/error", 1);
+        markdownContentWriter.writeBrokenLinks(parser, depth);
+
+        verify(markdownFileWriter).writeBrokenLink(brokenLinks[0], depth);
+        verify(markdownFileWriter).writeBrokenLink(brokenLinks[1], depth);
         verifyNoMoreInteractions(markdownFileWriter);
+    }
+
+    private Parser mockParser_getBrokenLinks(String[] brokenLinks) {
+        Parser parser = mock(Parser.class);
+        when(parser.getBrokenUrls()).thenReturn(brokenLinks);
+        return parser;
     }
 
     @Test
     public void testWriteContentOfPageToMarkdown() {
-        Parser parser = mock(Parser.class);
-        when(parser.getHeadings()).thenReturn(new String[]{"Heading 1", "Heading 2", "Heading 3"});
+        String[] headings={"Heading 1", "Heading 2", "Heading 3"};
+        int depth=2;
         String url = "http://example.com/page";
 
-        markdownContentWriter.writeContentOfPageToMarkdown(parser, url, 2);
+        Parser parser=mockParser_getHeadings(headings);
 
-        verify(markdownFileWriter).writeLink(url, 2);
-        verify(markdownFileWriter).writeHeadings(new String[]{"Heading 1", "Heading 2", "Heading 3"}, 2);
+        markdownContentWriter.writeContentOfPageToMarkdown(parser, url, depth);
+
+        verify(markdownFileWriter).writeLink(url, depth);
+        verify(markdownFileWriter).writeHeadings(headings, depth);
+        verifyNoMoreInteractions(markdownFileWriter);
+    }
+
+    private Parser mockParser_getHeadings(String[] headings) {
+        Parser parser = mock(Parser.class);
+        when(parser.getHeadings()).thenReturn(headings);
+        return parser;
+    }
+
+    @Test
+    public void testWriteErrorMessageIntoReport(){
+        String errorMessage="Test Error";
+
+        markdownContentWriter.writeErrorMessageIntoReport(errorMessage);
+
+        verify(markdownFileWriter).writeLine(errorMessage);
         verifyNoMoreInteractions(markdownFileWriter);
     }
 

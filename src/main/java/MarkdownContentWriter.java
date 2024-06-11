@@ -18,6 +18,10 @@ public class MarkdownContentWriter {
         markdownFileWriter.writeHeadings(headings, currentDepth);
     }
 
+    void writeErrorMessageIntoReport(String errorMessage){
+        markdownFileWriter.writeLine(errorMessage);
+    }
+
 
     public void closeMarkDownContentWriter(){
         markdownFileWriter.closeWriter();
