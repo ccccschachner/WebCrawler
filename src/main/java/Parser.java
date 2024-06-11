@@ -57,22 +57,24 @@ public class Parser {
     }
 
     private void storeUrls() {
-        ExecutorService executor = Executors.newFixedThreadPool(10);
-        List<Future<?>> futures = new ArrayList<>();
+        try (ExecutorService executor = Executors.newFixedThreadPool(10)) {
+            List<Future<?>> futures = new ArrayList<>();
 
-        for (Element anchor : allAnchors) {
-            futures.add(executor.submit(() -> sortAnchors(anchor)));
-        }
-
-        for (Future<?> future : futures) {
-            try {
-                future.get();
-            } catch (Exception e) {
-                e.printStackTrace();
+            for (Element anchor : allAnchors) {
+                futures.add(executor.submit(() -> sortAnchors(anchor)));
             }
+
+            for (Future<?> future : futures) {
+                try {
+                    future.get();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            executor.shutdown();
         }
 
-        executor.shutdown();
 
         storeIntactUrls();
         storeBrokenUrls();
