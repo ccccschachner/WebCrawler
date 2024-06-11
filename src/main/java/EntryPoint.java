@@ -18,6 +18,12 @@ public class EntryPoint {
     private static final String domainRegex = "^(?!.*\\s)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$";
     private static final String filePathRegex = "^(.*/)?(?:$|(.+?)(?:(\\.[^.]*$)|$))";
 
+    private static final String urlsPrompt = "Please enter URLs you want to crawl, separated by a space (e.g. https://example.com):"
+    private static final String depthPrompt = "Please enter the depth of websites to crawl (1-5):";
+    private static final String domainsPrompt = "Please enter domains to be crawled, separated by a space:";
+    private static final String filePathPrompt = "Please enter the file path where you want to store your markdown:\n(format C:\\Users\\Benutzername\\Documents\\markdown\\output.md)";
+
+
     public static void main(String[] args) {
         System.out.println("\nWelcome to WebCrawler!");
         initializeScanner();
@@ -30,10 +36,10 @@ public class EntryPoint {
     }
 
     public static void storeUserInputs() {
-        urls = promptUserInput("Please enter URLs you want to crawl, separated by a space (e.g. https://example.com):", urlRegex);
-        depth = Integer.parseInt(promptSingleInput("Please enter the depth of websites to crawl (1-5):", depthRegex));
-        domains = promptUserInput("Please enter domains to be crawled, separated by a space:", domainRegex);
-        filePath = promptSingleInput("Please enter the file path where you want to store your markdown:\n(format C:\\Users\\Benutzername\\Documents\\markdown\\output.md)", filePathRegex);
+        urls = promptUserInput(urlsPrompt, urlRegex);
+        depth = Integer.parseInt(promptSingleInput(depthPrompt, depthRegex));
+        domains = promptUserInput(domainsPrompt, domainRegex);
+        filePath = promptSingleInput(filePathPrompt, filePathRegex);
     }
 
     public static List<String> promptUserInput(String prompt, String regex) {
@@ -45,7 +51,7 @@ public class EntryPoint {
             if (inputs.stream().allMatch(i -> i.matches(regex))) {
                 break;
             }
-            System.out.println("Invalid Input!");
+            printInvalidInput();
         }
         return inputs;
     }
@@ -58,7 +64,7 @@ public class EntryPoint {
             if (input.matches(regex)) {
                 break;
             }
-            System.out.println("Invalid Input!");
+            printInvalidInput();
         }
         return input;
     }
@@ -102,5 +108,9 @@ public class EntryPoint {
                 System.err.println("Main thread was interrupted: " + e.getMessage());
             }
         }
+    }
+
+    public static void printInvalidInput() {
+        System.out.println("Invalid Input!");
     }
 }
