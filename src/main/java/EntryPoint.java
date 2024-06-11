@@ -210,9 +210,5 @@ public class EntryPoint {
     public static void setFiles(List<String> files) {
         EntryPoint.files = files;
     }
-
-    public static List<Thread> getThreads() {
-        return threads;
-    }
 }
 
