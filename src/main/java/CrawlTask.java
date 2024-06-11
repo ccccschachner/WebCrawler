@@ -1,15 +1,21 @@
+import java.util.List;
+
 public class CrawlTask implements Runnable {
-    private String url;
+    private final String url;
     private final String filePath;
+    private final int depth;
+    private final List<String> domains;
     private MarkdownFileWriter markdownFileWriter;
     private MarkdownContentWriter contentWriter;
     private DomainMatcher domainMatcher;
     private Crawler crawler;
 
 
-    public CrawlTask(String url, String filePath) {
+    public CrawlTask(String url, String filePath, int depth, List<String> domains) {
         this.url = url;
         this.filePath = filePath;
+        this.depth=depth;
+        this.domains=domains;
     }
 
     @Override
@@ -22,7 +28,7 @@ public class CrawlTask implements Runnable {
     }
 
     public void writeHeader(String url) {
-        markdownFileWriter.writeHeader(url, EntryPoint.getDepth());
+        markdownFileWriter.writeHeader(url, depth);
     }
 
     public void crawlURL(String url) {
@@ -33,8 +39,8 @@ public class CrawlTask implements Runnable {
     public void initializeCrawlingProcess() {
         markdownFileWriter = new MarkdownFileWriter(filePath);
         contentWriter = new MarkdownContentWriter(markdownFileWriter);
-        domainMatcher = new DomainMatcher(EntryPoint.getDomains());
-        crawler = new Crawler(EntryPoint.getDepth(), domainMatcher, contentWriter);
+        domainMatcher = new DomainMatcher(domains);
+        crawler = new Crawler(depth, domainMatcher, contentWriter);
     }
 
     public void finishWritingAfterCrawling(){contentWriter.closeMarkDownContentWriter();}

@@ -3,6 +3,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
@@ -12,6 +14,9 @@ public class CrawlTaskTest {
 
     private static final String TEST_URL = "http://example.com";
     private static final String TEST_FILE_PATH = "testFile.md";
+
+    private static final int DEPTH=2;
+    private static final List<String> TEST_DOMAINS =List.of("example.com");
 
     private CrawlTask crawlTask;
 
@@ -30,7 +35,7 @@ public class CrawlTaskTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        crawlTask = spy(new CrawlTask(TEST_URL, TEST_FILE_PATH));
+        crawlTask = spy(new CrawlTask(TEST_URL, TEST_FILE_PATH, DEPTH, TEST_DOMAINS));
         doNothing().when(crawlTask).initializeCrawlingProcess();
 
         crawlTask.setMarkdownFileWriter(mockMarkdownFileWriter);
@@ -64,7 +69,7 @@ public class CrawlTaskTest {
 
     @Test
     public void testInitializeCrawlingProcess() {
-        crawlTask = new CrawlTask(TEST_URL, TEST_FILE_PATH);
+        crawlTask = new CrawlTask(TEST_URL, TEST_FILE_PATH,DEPTH, TEST_DOMAINS);
         crawlTask.run();
 
         assertNotNull(crawlTask.getMarkdownFileWriter());
