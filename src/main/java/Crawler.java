@@ -37,7 +37,7 @@ public class Crawler {
         return domainMatcher.matchesDomain(url);
     }
     Parser createParser(String url) {
-        return new Parser(url);
+        return new Parser(url,contentWriter);
     }
     boolean shouldContinueCrawling(String url, int currentDepth){
         return currentDepth<=depth && !visitedURLs.contains(url);

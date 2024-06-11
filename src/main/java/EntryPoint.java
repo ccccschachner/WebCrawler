@@ -39,7 +39,9 @@ public class EntryPoint {
     public static void storeUrls() {
         System.out.println("Please enter URLs you want to crawl, separated by a space (e.g. https://example.com).");
         if (scanner.hasNextLine()) {
-            urls.addAll(List.of(scanner.nextLine().split(" ")));
+            String urlInputs=scanner.nextLine();
+            List<String> urlsToBeAdded=getListFromScannerInput(urlInputs);
+            urls.addAll(urlsToBeAdded);
 
             for (String url : urls) {
                 if (!url.matches(urlRegex)) {
@@ -75,7 +77,9 @@ public class EntryPoint {
     public static void storeDomains() {
         System.out.println("Please enter domains to be crawled, separated by a space:");
         if (scanner.hasNextLine()) {
-            domains.addAll(List.of(scanner.nextLine().split(" ")));
+            String domainInputs=scanner.nextLine();
+            List<String> domainsToBeAdded=getListFromScannerInput(domainInputs);
+            domains.addAll(domainsToBeAdded);
 
             for (String domain : domains) {
                 if (!domain.matches(domainRegex)) {
@@ -172,7 +176,10 @@ public class EntryPoint {
         }
     }
 
-
+    public static List<String> getListFromScannerInput(String scannerInput){
+        String[] splittedInput=scannerInput.split(" ");
+        return List.of(splittedInput);
+    }
 
     public static List<String> getUrls() {
         return urls;
@@ -209,10 +216,6 @@ public class EntryPoint {
 
     public static void setFiles(List<String> files) {
         EntryPoint.files = files;
-    }
-
-    public static List<Thread> getThreads() {
-        return threads;
     }
 }
 

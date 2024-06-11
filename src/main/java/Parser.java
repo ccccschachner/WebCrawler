@@ -13,6 +13,7 @@ import java.util.concurrent.Future;
 
 public class Parser {
     private final String url;
+    private final MarkdownContentWriter markdownContentWriter;
     private String documentTitle;
     private Document document;
     private String[] headings;
@@ -22,8 +23,9 @@ public class Parser {
     private String[] intactUrls;
     private String[] brokenUrls;
 
-    public Parser(String url) {
+    public Parser(String url, MarkdownContentWriter markdownContentWriter) {
         this.url = url;
+        this.markdownContentWriter=markdownContentWriter;
         parse();
     }
 
@@ -36,12 +38,12 @@ public class Parser {
         }
     }
 
-    private void createDocument() {
+    void createDocument() {
         try {
             document = Jsoup.connect(url).get();
             documentTitle = document.title();
         } catch (IOException e) {
-            System.err.println("Error connecting to: " + url + "\n" + e.getMessage());//TODO Error Handling
+            markdownContentWriter.writeErrorMessageIntoReport("Error connecting to: " + url + "\n" + e.getMessage());
         }
     }
 

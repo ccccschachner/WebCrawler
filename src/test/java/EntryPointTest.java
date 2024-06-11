@@ -3,7 +3,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -140,6 +139,16 @@ public class EntryPointTest {
         assertTrue(outContent.toString().contains(filePathValid));
         assertTrue(outContent.toString().contains(urlValid));
         assertTrue(outContent.toString().contains(domainValid));
+    }
+
+    @Test
+    public void testGetListFromScannerInput(){
+        String testScannerInput="Test1 Test2 Test3";
+        List<String> expectedList=List.of("Test1","Test2","Test3");
+
+        List<String> receivedList=EntryPoint.getListFromScannerInput(testScannerInput);
+
+        assertEquals(expectedList,receivedList);
     }
 
 }

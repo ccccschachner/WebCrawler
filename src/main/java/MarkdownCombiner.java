@@ -13,16 +13,23 @@ public class MarkdownCombiner {
 
     public void combineFiles() {
         try {
-            Files.write(Paths.get(filePath), new byte[0], StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            Path targetFile = Paths.get(filePath);
+
+            Files.write(targetFile, new byte[0], StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 
             for (String file : files) {
-                List<String> lines = Files.readAllLines(Paths.get(file));
-                Files.write(Paths.get(filePath), lines, StandardOpenOption.APPEND);
-                Files.write(Paths.get(filePath), System.lineSeparator().getBytes(), StandardOpenOption.APPEND);
+                Path threadFile = Paths.get(file);
+                List<String> lines = Files.readAllLines(threadFile);
+
+                String lineSeparator = System.lineSeparator();
+                byte[] lineSeparatorBytes = lineSeparator.getBytes();
+
+                Files.write(targetFile, lines, StandardOpenOption.APPEND);
+                Files.write(targetFile, lineSeparatorBytes, StandardOpenOption.APPEND);
             }
 
         } catch (IOException e) {
-            e.printStackTrace();//TODO ErrorHandling + finally-Klausel
+            e.printStackTrace();
         }
     }
 }
