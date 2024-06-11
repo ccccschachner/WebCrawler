@@ -3,15 +3,16 @@ import java.nio.file.*;
 import java.util.List;
 
 public class MarkdownCombiner {
-    private String filePath;
+    private final String filePath;
+    private final List<String> files;
 
-    MarkdownCombiner(String filePath){
+    MarkdownCombiner(String filePath,  List<String> files){
         this.filePath = filePath;
+        this.files=files;
     }
 
     public void combineFiles() {
         try {
-            List<String> files = EntryPoint.getFiles();
             Files.write(Paths.get(filePath), new byte[0], StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 
             for (String file : files) {
@@ -21,7 +22,7 @@ public class MarkdownCombiner {
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            e.printStackTrace();//TODO ErrorHandling + finally-Klausel
         }
     }
 }

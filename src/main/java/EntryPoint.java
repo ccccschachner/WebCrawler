@@ -117,7 +117,7 @@ public class EntryPoint {
             String output = filePath+"_"+threadCounter;
             files.add(output);
 
-            Thread thread = new Thread(new CrawlTask(url, output));
+            Thread thread = new Thread(new CrawlTask(url, output,depth,domains));
             thread.start();
             threads.add(thread);
             threadCounter++;
@@ -149,7 +149,7 @@ public class EntryPoint {
 
 
     public static void createFinalMarkdown() {
-        markdownCombiner = new MarkdownCombiner(filePath);
+        markdownCombiner = new MarkdownCombiner(filePath,files);
         markdownCombiner.combineFiles();
     }
 
@@ -164,7 +164,7 @@ public class EntryPoint {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 System.err.println("Main thread was interrupted: " + e.getMessage());
-            }
+            } //TODO finally-Klausel
         }
 
         createFinalMarkdown();
@@ -221,5 +221,8 @@ public class EntryPoint {
         EntryPoint.crawler = crawler;
     }
 
+    public static List<Thread> getThreads() {
+        return threads;
+    }
 }
 

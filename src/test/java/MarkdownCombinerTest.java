@@ -14,13 +14,13 @@ import java.util.List;
 public class MarkdownCombinerTest {
 
     private static final String filePath = "./test_combined.md";
-    private static List<String> files = new ArrayList<>();
+    private static final List<String> files = new ArrayList<>();
     private MarkdownCombiner markdownCombiner;
     private File file;
 
     @BeforeEach
     public void setUp() {
-        markdownCombiner = new MarkdownCombiner(filePath);
+        markdownCombiner = new MarkdownCombiner(filePath,files);
         file = new File(filePath);
 
         if (!file.exists()) {
