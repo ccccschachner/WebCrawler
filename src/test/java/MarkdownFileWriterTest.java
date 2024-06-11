@@ -72,11 +72,11 @@ public class MarkdownFileWriterTest {
         writeToRessourceMarkdownCompare(expectedLink1+expectedLink2);
         assertFilesMatch();
     }
-
     @Test
     public void testWriteLine(){
-        writeToRessourceMarkdownCompare("Test");
-        markdownFileWriter.writeLine("Test");
+        String lineToWrite="Test";
+        writeToRessourceMarkdownCompare(lineToWrite);
+        markdownFileWriter.writeLine(lineToWrite);
         markdownFileWriter.closeWriter();
         assertFilesMatch();
     }
@@ -97,7 +97,8 @@ public class MarkdownFileWriterTest {
     }
 
     @Test
-    public void testAddDepthMarkingDepth1(){assertEquals("-->", markdownFileWriter.addDepthMarking(1));}
+    public void testAddDepthMarkingDepth1(){
+        assertEquals("-->", markdownFileWriter.addDepthMarking(1));}
     @Test
     public void testAddDepthMarkingDepth2(){
         assertEquals("---->", markdownFileWriter.addDepthMarking(2));
@@ -128,9 +129,11 @@ public class MarkdownFileWriterTest {
         assertEquals("##", markdownFileWriter.addHeadingMarking("h2"));
     }
     @Test
-    public void testAddHeadingMarkingHeading3(){assertEquals("###", markdownFileWriter.addHeadingMarking("h3"));}
+    public void testAddHeadingMarkingHeading3(){
+        assertEquals("###", markdownFileWriter.addHeadingMarking("h3"));}
     @Test
-    public void testAddHeadingMarkingHeading4(){assertEquals("####", markdownFileWriter.addHeadingMarking("h4"));}
+    public void testAddHeadingMarkingHeading4(){
+        assertEquals("####", markdownFileWriter.addHeadingMarking("h4"));}
     @Test
     public void testAddHeadingMarkingHeading5(){
         assertEquals("#####", markdownFileWriter.addHeadingMarking("h5"));
