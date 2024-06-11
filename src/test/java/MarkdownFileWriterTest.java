@@ -156,26 +156,6 @@ public class MarkdownFileWriterTest {
         verify(writer, times(1)).close();
     }
 
-    @Test
-    public void testCloseWriter_TestException(){
-        FileWriter writer = mock(FileWriter.class);
-        IOException ioException = mockIOException(writer);
-
-        markdownFileWriter.setWriter(writer);
-
-        RuntimeException expectedException = assertThrows(RuntimeException.class, markdownFileWriter::closeWriter);
-        assertEquals(ioException, expectedException.getCause());
-    }
-    private IOException mockIOException(FileWriter writer){
-        IOException ioException = new IOException("Test IOException");
-        try {
-            doThrow(ioException).when(writer).close();
-        } catch (IOException e) {
-            fail();
-        }
-        return ioException;
-    }
-
     private String getContent(String filePath){
         try {
             return new String(Files.readAllBytes(Paths.get(filePath)));

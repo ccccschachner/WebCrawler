@@ -3,8 +3,6 @@ import java.io.IOException;
 
 public class MarkdownFileWriter {
     private FileWriter writer;
-
-
     public MarkdownFileWriter(String filePath){
         initializeWriter(filePath);
     }
@@ -61,6 +59,12 @@ public class MarkdownFileWriter {
             writer.write(lineToWrite);
         } catch (IOException e) {
             System.out.println("Error writing Markdown file: " + e.getMessage());
+        } finally {
+            try {
+                writer.flush();
+            } catch (IOException e) {
+                System.out.println("Error flushing Markdown file: " + e.getMessage());
+            }
         }
     }
 
@@ -73,7 +77,7 @@ public class MarkdownFileWriter {
         try {
             writer.close();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.out.println("Error closing MarkdownWriter: "+e.getMessage());
         }
     }
     public FileWriter getWriter() {

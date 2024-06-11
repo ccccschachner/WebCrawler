@@ -41,7 +41,7 @@ public class Parser {
             document = Jsoup.connect(url).get();
             documentTitle = document.title();
         } catch (IOException e) {
-            System.err.println("Error connecting to: " + url + "\n" + e.getMessage());
+            System.err.println("Error connecting to: " + url + "\n" + e.getMessage());//TODO Error Handling
         }
     }
 
@@ -131,3 +131,4 @@ public class Parser {
         }
     }
 }
+
